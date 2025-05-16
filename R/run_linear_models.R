@@ -133,7 +133,7 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
 
     residuals <- broom::augment(model)$.resid
 
-    cat("Model run complete. To view a summary table, use result[['outcome&exposure']]$tidy\n")
+    print("Model run complete. To view a summary table, use result[['outcome&exposure']]$tidy\n")
 
     list(
       model = model,
@@ -158,7 +158,7 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
     })
 
     names(results) <- model_names
-    cat("Model run complete. To view the summary table, use `$tidy`, e.g., result$tidy\n")
+    print("Model run complete. To view the summary table, use `$tidy`, e.g., result$tidy\n")
     return(results)
   }
 
