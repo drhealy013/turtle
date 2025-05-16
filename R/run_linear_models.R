@@ -15,7 +15,7 @@
 #' @return A list containing model results. If multiple outcomes or exposures are provided, returns a named list of results.
 #' @export
 #'
-#' @importFrom utils globalVariables packageVersion
+#' @importFrom utils globalVariables packageVersion menu
 #' @importFrom stats as.formula lm nobs BIC
 #' @importFrom tibble tibble
 #' @importFrom dplyr %>% mutate select all_of
