@@ -4,11 +4,11 @@
 #' @description This function fits a linear model (`lm`) or a mixed effects model (`lmer`) depending on the presence of random effects. It supports interaction terms, sensitivity covariates, and returns a tidy summary of the model.
 #'
 #' @param data Your dataset containing the variables used in the model.
-#' @param outcome A string specifying the outcome variable. This can be written as: outcomes <- set_names(c("outcome_1", "outcome_2")) and so on for how many outcomes you are investigating
-#' @param exposure A string specifying the main exposure variable. This can be written as: exposures <- set_names(c("exposure_1", "exposure_2")) and so on for how many exposures you are investigating
-#' @param covariates A character vector of covariate names to adjust for. Write your covariates as a normal formula: covariates <- "covariate_1 + covariate_2 + covariate_3"
-#' @param effect_modifier A string specifying an effect modifier to interact with the exposure. Similar to "covariates"
-#' @param sensitivity_cov A character vector of sensitivity covariates. Similar to "covariates"
+#' @param outcome A string specifying the outcome variable.
+#' @param exposure A string specifying the main exposure variable.
+#' @param covariates A character vector of covariate names to adjust for.
+#' @param effect_modifier A string specifying an effect modifier to interact with the exposure.
+#' @param sensitivity_cov A character vector of sensitivity covariates.
 #' @param random_effects A string specifying the random effects structure (e.g., "(1 | group)").
 #'
 #' @return A list containing the fitted model, a tidy summary table, the model formula, residuals, and exposure name.
@@ -27,6 +27,22 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL, effect
 
   # Build fixed effects part of the formula
   fixed_effects <- c(covariates, exposure)
+
+  if (!is.null(effect_modifier) && grepl("\\*", exposure)) {
+    if (interactive()) {
+      message("You have specified an interaction term as the exposure (\"", exposure,
+              "\") and also provided an effect modifier (\"", effect_modifier,
+              "\"). This will result in a 3-way interaction: ",
+              exposure, "*", effect_modifier, ".")
+
+      choice <- menu(c("Yes", "No"), title = "Do you want to proceed?")
+      if (choice != 1) {
+        stop("Model fitting aborted by user.")
+      }
+    } else {
+      stop("3-way interaction detected. Please confirm by setting confirm_three_way = TRUE.")
+    }
+  }
 
   if (!is.null(effect_modifier)) {
     fixed_effects <- c(fixed_effects, paste0(exposure, "*", effect_modifier))

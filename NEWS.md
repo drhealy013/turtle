@@ -20,3 +20,9 @@
   - Exposure variable name
 * Includes robust error and warning handling using `purrr::safely()` and `withCallingHandlers()`. Includes errors or warnings in the tidy output so they can be viewed later when interpreting results.
 
+# runLinearModels 0.1.1
+
+## Update
+
+*Ask for clarification if user submits an interaction as the exposure, and additionally adds an effect-modifier, to confirm if the user wants to pursue 3-way interactions.
+  - Robust for both interactive and non-interactive use
