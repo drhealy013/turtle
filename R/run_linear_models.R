@@ -158,10 +158,12 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
     })
 
     names(results) <- model_names
-    print("Model run complete. To view the summary table, use `$tidy`, e.g., result$tidy\n")
-    return(results)
+    message("Model run complete. To view the summary table, use `$tidy`, e.g., result$tidy")
+    return(invisible(results))
   }
 
   # Otherwise, run a single model
-  run_single_model(outcome, exposure)
+  result <- run_single_model(outcome, exposure)
+  message("Model run complete. To view a summary table, use result$tidy")
+  invisible(result)
 }
