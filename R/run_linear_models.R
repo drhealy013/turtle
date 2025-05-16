@@ -161,5 +161,7 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
 
   augmented_data <- broom::augment(model)
 
+  message("Model run complete. To view the summary table, use `$tidy`, e.g., result$tidy")
+
   list(model = model, tidy = tidy, formula = full_formula, residuals = augmented_data$.resid, exposure = exposure)
 }
