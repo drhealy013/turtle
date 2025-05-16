@@ -158,5 +158,5 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
   result <- run_single_model(outcome, exposure)
   result <- structure(result, class = "run_model_result")
   message("Model run complete.")
-  return(invisible(result))
+  return(result)
 }
