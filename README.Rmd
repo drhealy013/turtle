@@ -1,0 +1,64 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# turtle
+
+<!-- badges: start -->
+!R-CMD-check
+<!-- badges: end -->
+
+`turtle` is an R package that provides simplified, user-friendly functions for common data analysis tasks such as modeling, dimensionality reduction, and visualization. It is designed to support users with minimal programming experience by allowing them to specify key inputs (e.g., outcome, exposure, covariates) and automatically handle the underlying code. It is applicable to a wide range of data types, including epidemiological, ecological, and experimental datasets.
+
+## Installation
+
+You can install the development version of `turtle` from GitHub with:
+
+```r
+# install.packages("pak")
+pak::pak("drhealy013/turtle")
+```
+
+## Example
+
+Here’s a basic example using the built-in `mtcars` dataset:
+
+```{r example}
+library(turtle)
+
+result <- run_linear_models(
+  data = mtcars,
+  outcome = "mpg",
+  exposure = "wt"
+)
+
+result$tidy
+```
+
+## Features
+
+- Fits linear (`lm`) or mixed effects (`lmer`) models
+- Supports:
+  - Covariates
+  - Effect modifiers
+  - Sensitivity covariates
+  - Random effects
+- Returns:
+  - Tidy model summary
+  - Residuals
+  - Model formula
+
+## License
+
+MIT © drhealy013
