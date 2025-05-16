@@ -25,6 +25,15 @@ utils::globalVariables(c("term", "estimate", "conf.low", "conf.high", "std.error
 
 run_linear_models <- function(data, outcome, exposure, covariates = NULL, effect_modifier = NULL, sensitivity_cov = NULL, random_effects = NULL) {
 
+  # Version check
+  current_version <- utils::packageVersion("turtle")
+  latest_version <- "0.1.1"  # Update this manually with each GitHub push
+
+  if (current_version < latest_version) {
+    message("A newer version of turtle is available (", latest_version,
+            "). Please reinstall from GitHub to get the latest updates.")
+  }
+
   # Build fixed effects part of the formula
   fixed_effects <- c(covariates, exposure)
 

@@ -2,7 +2,7 @@
 
 * Initial CRAN submission.
 
-# runLinearModels 0.1.0
+# turtle 0.1.0
 
 ## Initial release
 
@@ -20,9 +20,15 @@
   - Exposure variable name
 * Includes robust error and warning handling using `purrr::safely()` and `withCallingHandlers()`. Includes errors or warnings in the tidy output so they can be viewed later when interpreting results.
 
-# runLinearModels 0.1.1
+# turtle 0.1.1
 
-## Update
+## Update runLinearModels
 
 *Ask for clarification if user submits an interaction as the exposure, and additionally adds an effect-modifier, to confirm if the user wants to pursue 3-way interactions.
   - Robust for both interactive and non-interactive use
+
+# turtle 0.1.2
+
+## Update runLinearModels
+
+*Added version check to `run_linear_models()` so the user knows if an update is needed or not.
