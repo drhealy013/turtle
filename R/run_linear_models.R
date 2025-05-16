@@ -32,28 +32,6 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
                               effect_modifier = NULL, sensitivity_cov = NULL,
                               random_effects = NULL, p_values = TRUE) {
 
-  # Handle multiple outcomes or exposures
-  if (length(outcome) > 1 || length(exposure) > 1) {
-    model_grid <- tidyr::expand_grid(outcome = outcome, exposure = exposure)
-    results <- purrr::pmap(model_grid, function(outcome, exposure) {
-      result <- run_linear_models(
-        data = data,
-        outcome = outcome,
-        exposure = exposure,
-        covariates = covariates,
-        effect_modifier = effect_modifier,
-        sensitivity_cov = sensitivity_cov,
-        random_effects = random_effects,
-        p_values = p_values
-      )
-      model_name <- paste(outcome, exposure, sep = "&")
-      message("Stored model: ", model_name)
-      list(model_name = model_name, model = result$model, tidy = result$tidy, residuals = result$residuals)
-    })
-    names(results) <- paste(model_grid$outcome, model_grid$exposure, sep = "&")
-    return(results)
-  }
-
   # Version check
   current_version <- utils::packageVersion("turtle")
   latest_version <- "0.1.4"
@@ -62,106 +40,128 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
             "). Please reinstall from GitHub to get the latest updates.")
   }
 
-  # Build fixed effects part of the formula
-  fixed_effects <- c(covariates, exposure)
-
-  if (!is.null(effect_modifier) && grepl("\\*", exposure)) {
-    if (interactive()) {
-      message("You have specified an interaction term as the exposure (\"", exposure,
-              "\") and also provided an effect modifier (\"", effect_modifier,
-              "\"). This will result in a 3-way interaction: ",
-              exposure, "*", effect_modifier, ".")
-
-      choice <- menu(c("Yes", "No"), title = "Do you want to proceed?")
-      if (choice != 1) {
-        stop("Model fitting aborted by user.")
-      }
-    } else {
-      stop("3-way interaction detected. Please confirm by setting confirm_three_way = TRUE.")
-    }
+  # Check for lmerTest if needed
+  if (p_values && !requireNamespace("lmerTest", quietly = TRUE)) {
+    stop("The 'lmerTest' package is required to compute p-values for mixed models. Please install it with install.packages('lmerTest').")
   }
 
-  if (!is.null(effect_modifier)) {
-    fixed_effects <- c(fixed_effects, paste0(exposure, "*", effect_modifier))
-  }
+  # Internal function to handle a single model
+  run_single_model <- function(outcome, exposure) {
+    fixed_effects <- c(covariates, exposure)
 
-  if (!is.null(sensitivity_cov)) {
-    fixed_effects <- c(fixed_effects, sensitivity_cov)
-  }
+    if (!is.null(effect_modifier) && grepl("\\*", exposure)) {
+      if (interactive()) {
+        message("You have specified an interaction term as the exposure (\"", exposure,
+                "\") and also provided an effect modifier (\"", effect_modifier,
+                "\"). This will result in a 3-way interaction: ",
+                exposure, "*", effect_modifier, ".")
 
-  fixed_formula <- paste(outcome, "~", paste(fixed_effects, collapse = " + "))
-
-  # Combine with random effects if provided
-  if (!is.null(random_effects)) {
-    full_formula <- as.formula(paste(fixed_formula, "+", random_effects))
-    model_type <- "lmer"
-  } else {
-    full_formula <- as.formula(fixed_formula)
-    model_type <- "lm"
-  }
-
-  # Safe model fitting
-  safe_fit <- purrr::safely(function(...) {
-    withCallingHandlers(
-      if (model_type == "lmer") {
-        if (p_values) {
-          if (!requireNamespace("lmerTest", quietly = TRUE)) {
-            stop("The 'lmerTest' package is required to compute p-values for mixed models. Please install it with install.packages('lmerTest').")
-          }
-          lmerTest::lmer(...)
-        } else {
-          lme4::lmer(...)
+        choice <- menu(c("Yes", "No"), title = "Do you want to proceed?")
+        if (choice != 1) {
+          stop("Model fitting aborted by user.")
         }
-      } else {
-        lm(...)
-      },
-      warning = function(w) {
-        warnings <<- c(warnings, conditionMessage(w))
-        invokeRestart("muffleWarning")
-      },
-      message = function(m) {
-        messages <<- c(messages, conditionMessage(m))
-        invokeRestart("muffleMessage")
       }
+    }
+
+    if (!is.null(effect_modifier)) {
+      fixed_effects <- c(fixed_effects, paste0(exposure, "*", effect_modifier))
+    }
+
+    if (!is.null(sensitivity_cov)) {
+      fixed_effects <- c(fixed_effects, sensitivity_cov)
+    }
+
+    fixed_formula <- paste(outcome, "~", paste(fixed_effects, collapse = " + "))
+    full_formula <- if (!is.null(random_effects)) {
+      as.formula(paste(fixed_formula, "+", random_effects))
+    } else {
+      as.formula(fixed_formula)
+    }
+
+    model_type <- if (!is.null(random_effects)) "lmer" else "lm"
+    model_fun <- switch(model_type,
+                        "lm" = stats::lm,
+                        "lmer" = if (p_values) lmerTest::lmer else lme4::lmer)
+
+    warnings <- character()
+    messages <- character()
+
+    safe_fit <- purrr::safely(function(...) {
+      withCallingHandlers(
+        rlang::exec(model_fun, ...),
+        warning = function(w) {
+          warnings <<- c(warnings, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        },
+        message = function(m) {
+          messages <<- c(messages, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        }
+      )
+    })
+
+    result <- safe_fit(formula = full_formula, data = data)
+
+    if (!is.null(result$error)) {
+      tidy <- tibble::tibble(term = NA, estimate = NA, conf.low = NA, conf.high = NA, p.value = NA, error = result$error$message)
+      return(list(tidy = tidy, formula = full_formula, residuals = NA))
+    }
+
+    model <- result$result
+
+    tidy_raw <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)
+    columns_to_select <- c("term", "estimate", "conf.low", "conf.high", "std.error")
+    if ("p.value" %in% names(tidy_raw)) {
+      columns_to_select <- c(columns_to_select, "p.value")
+    }
+
+    tidy <- tidy_raw %>%
+      dplyr::select(dplyr::all_of(columns_to_select)) %>%
+      dplyr::mutate(
+        error = ifelse(length(warnings) > 0 || length(messages) > 0, paste(c(warnings, messages), collapse = "; "), NA),
+        n_obs = stats::nobs(model),
+        BIC = stats::BIC(model)
+      )
+
+    if (!is.null(effect_modifier)) {
+      tidy <- tidy %>% dplyr::mutate(modifier = effect_modifier)
+    }
+
+    if (!is.null(sensitivity_cov)) {
+      tidy <- tidy %>% dplyr::mutate(sensitivity = paste(sensitivity_cov, collapse = ", "))
+    }
+
+    residuals <- broom::augment(model)$.resid
+
+    message("Model run complete. To view the summary table, use `$tidy`, e.g., result$tidy")
+
+    list(
+      model = model,
+      tidy = tidy,
+      formula = full_formula,
+      residuals = residuals,
+      exposure = exposure
     )
-  })
-
-  warnings <- character()
-  messages <- character()
-  result <- safe_fit(formula = full_formula, data = data)
-
-  if (!is.null(result$error)) {
-    tidy <- tibble(term = NA, estimate = NA, conf.low = NA, conf.high = NA, p.value = NA, error = result$error$message)
-    return(list(tidy = tidy, formula = full_formula, residuals = NA))
   }
 
-  model <- result$result
+  # If multiple outcomes or exposures, loop over combinations
+  if (length(outcome) > 1 || length(exposure) > 1) {
+    model_grid <- tidyr::expand_grid(outcome = outcome, exposure = exposure)
+    model_names <- paste(model_grid$outcome, model_grid$exposure, sep = "&")
 
-  tidy_raw <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)
-  columns_to_select <- c("term", "estimate", "conf.low", "conf.high", "std.error")
-  if ("p.value" %in% names(tidy_raw)) {
-    columns_to_select <- c(columns_to_select, "p.value")
+    results <- purrr::pmap(model_grid, function(outcome, exposure) {
+      result <- run_single_model(outcome, exposure)
+      list(model_name = paste(outcome, exposure, sep = "&"),
+           model = result$model,
+           tidy = result$tidy,
+           residuals = result$residuals)
+    })
+
+    names(results) <- model_names
+    message("Model run complete. To view a summary table, use result[['outcome&exposure']]$tidy")
+    return(results)
   }
 
-  tidy <- tidy_raw %>%
-    dplyr::select(dplyr::all_of(columns_to_select)) %>%
-    dplyr::mutate(
-      error = ifelse(length(warnings) > 0 || length(messages) > 0, paste(c(warnings, messages), collapse = "; "), NA),
-      n_obs = nobs(model),
-      BIC = BIC(model)
-    )
-
-  if (!is.null(effect_modifier)) {
-    tidy <- tidy %>% dplyr::mutate(modifier = effect_modifier)
-  }
-
-  if (!is.null(sensitivity_cov)) {
-    tidy <- tidy %>% dplyr::mutate(sensitivity = paste(sensitivity_cov, collapse = ", "))
-  }
-
-  augmented_data <- broom::augment(model)
-
-  message("Model run complete. To view the summary table, use `$tidy`, e.g., result$tidy")
-
-  list(model = model, tidy = tidy, formula = full_formula, residuals = augmented_data$.resid, exposure = exposure)
+  # Otherwise, run a single model
+  run_single_model(outcome, exposure)
 }
