@@ -39,3 +39,9 @@
 ## BugFix
 
 *Fixed bug so that tidy output will optionally select p-values based on whether it exists in the output.
+
+# turtle 0.1.4
+
+## Update runLinearModels
+
+*Added functionality so that either a single e.g., outcome or exposure can be provided, or else a vector of e.g., outcomes or exposures. If a list is provided, loops through the possible combinations of exposures and outcomes.

@@ -1,38 +1,62 @@
 #' @name run_linear_models
 #' @title Fit a Linear or Mixed Effects Model with Optional Modifiers
 #'
-#' @description This function fits a linear model (`lm`) or a mixed effects model (`lmer`) depending on the presence of random effects. It supports interaction terms, sensitivity covariates, and returns a tidy summary of the model. Users can choose whether to compute p-values for mixed models.
+#' @description This function fits a linear model (`lm`) or a mixed effects model (`lmer`) depending on the presence of random effects. It supports interaction terms, sensitivity covariates, and returns a tidy summary of the model. Users can choose whether to compute p-values for mixed models. It also supports looping over multiple outcomes and exposures.
 #'
 #' @param data Your dataset containing the variables used in the model.
-#' @param outcome A string specifying the outcome variable.
-#' @param exposure A string specifying the main exposure variable.
+#' @param outcome A string or character vector specifying one or more outcome variables.
+#' @param exposure A string or character vector specifying one or more exposure variables.
 #' @param covariates A character vector of covariate names to adjust for.
 #' @param effect_modifier A string specifying an effect modifier to interact with the exposure.
 #' @param sensitivity_cov A character vector of sensitivity covariates.
 #' @param random_effects A string specifying the random effects structure (e.g., "(1 | group)").
 #' @param p_values Logical. If TRUE (default), uses lmerTest to compute p-values for mixed models. If FALSE, uses lme4 without p-values.
 #'
-#' @return A list containing the fitted model, a tidy summary table, the model formula, residuals, and exposure name.
+#' @return A list containing model results. If multiple outcomes or exposures are provided, returns a named list of results.
 #' @export
 #'
 #' @importFrom utils globalVariables packageVersion
 #' @importFrom stats as.formula lm nobs BIC
 #' @importFrom tibble tibble
-#' @importFrom dplyr %>% mutate select
+#' @importFrom dplyr %>% mutate select all_of
 #' @importFrom broom tidy augment
 #' @importFrom broom.mixed tidy
 #' @importFrom lme4 lmer
 #' @importFrom lmerTest lmer
-#' @importFrom purrr safely
+#' @importFrom purrr safely pmap
+#' @importFrom tidyr expand_grid
 
 utils::globalVariables(c("term", "estimate", "conf.low", "conf.high", "std.error", "p.value"))
 
-run_linear_models <- function(data, outcome, exposure, covariates = NULL, effect_modifier = NULL,
-                              sensitivity_cov = NULL, random_effects = NULL, p_values = TRUE) {
+run_linear_models <- function(data, outcome, exposure, covariates = NULL,
+                              effect_modifier = NULL, sensitivity_cov = NULL,
+                              random_effects = NULL, p_values = TRUE) {
+
+  # Handle multiple outcomes or exposures
+  if (length(outcome) > 1 || length(exposure) > 1) {
+    model_grid <- tidyr::expand_grid(outcome = outcome, exposure = exposure)
+    results <- purrr::pmap(model_grid, function(outcome, exposure) {
+      result <- run_linear_models(
+        data = data,
+        outcome = outcome,
+        exposure = exposure,
+        covariates = covariates,
+        effect_modifier = effect_modifier,
+        sensitivity_cov = sensitivity_cov,
+        random_effects = random_effects,
+        p_values = p_values
+      )
+      model_name <- paste(outcome, exposure, sep = "&")
+      message("Stored model: ", model_name)
+      list(model_name = model_name, model = result$model, tidy = result$tidy, residuals = result$residuals)
+    })
+    names(results) <- paste(model_grid$outcome, model_grid$exposure, sep = "&")
+    return(results)
+  }
 
   # Version check
   current_version <- utils::packageVersion("turtle")
-  latest_version <- "0.1.3"
+  latest_version <- "0.1.4"
   if (current_version < latest_version) {
     message("A newer version of turtle is available (", latest_version,
             "). Please reinstall from GitHub to get the latest updates.")
@@ -114,8 +138,6 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL, effect
   model <- result$result
 
   tidy_raw <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)
-
-  # Check if p.value column exists
   columns_to_select <- c("term", "estimate", "conf.low", "conf.high", "std.error")
   if ("p.value" %in% names(tidy_raw)) {
     columns_to_select <- c(columns_to_select, "p.value")
