@@ -1,11 +1,10 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 # turtle
 
 <!-- badges: start -->
 
-!R-CMD-check <!-- badges: end -->
+[![R-CMD-check](https://github.com/drhealy013/turtle)](https://github.com/drhealy013/turtle/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
 
 `turtle` is an R package that provides simplified, user-friendly
 functions for common data analysis tasks such as modeling,
