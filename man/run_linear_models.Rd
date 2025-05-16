@@ -6,21 +6,23 @@
 \arguments{
 \item{data}{Your dataset containing the variables used in the model.}
 
-\item{outcome}{A string specifying the outcome variable. This can be written as: outcomes <- set_names(c("outcome_1", "outcome_2")) and so on for how many outcomes you are investigating}
+\item{outcome}{A string or character vector specifying one or more outcome variables.}
 
-\item{exposure}{A string specifying the main exposure variable. This can be written as: exposures <- set_names(c("exposure_1", "exposure_2")) and so on for how many exposures you are investigating}
+\item{exposure}{A string or character vector specifying one or more exposure variables.}
 
-\item{covariates}{A character vector of covariate names to adjust for. Write your covariates as a normal formula: covariates <- "covariate_1 + covariate_2 + covariate_3"}
+\item{covariates}{A character vector of covariate names to adjust for.}
 
-\item{effect_modifier}{A string specifying an effect modifier to interact with the exposure. Similar to "covariates"}
+\item{effect_modifier}{A string specifying an effect modifier to interact with the exposure.}
 
-\item{sensitivity_cov}{A character vector of sensitivity covariates. Similar to "covariates"}
+\item{sensitivity_cov}{A character vector of sensitivity covariates.}
 
 \item{random_effects}{A string specifying the random effects structure (e.g., "(1 | group)").}
+
+\item{p_values}{Logical. If TRUE (default), uses lmerTest to compute p-values for mixed models. If FALSE, uses lme4 without p-values.}
 }
 \value{
-A list containing the fitted model, a tidy summary table, the model formula, residuals, and exposure name.
+A list containing model results. If multiple outcomes or exposures are provided, returns a named list of results.
 }
 \description{
-This function fits a linear model (`lm`) or a mixed effects model (`lmer`) depending on the presence of random effects. It supports interaction terms, sensitivity covariates, and returns a tidy summary of the model.
+This function fits a linear model (`lm`) or a mixed effects model (`lmer`) depending on the presence of random effects. It supports interaction terms, sensitivity covariates, and returns a tidy summary of the model. Users can choose whether to compute p-values for mixed models. It also supports looping over multiple outcomes and exposures.
 }

@@ -46,3 +46,8 @@
 
 *Added functionality so that either a single e.g., outcome or exposure can be provided, or else a vector of e.g., outcomes or exposures. If a list is provided, loops through the possible combinations of exposures and outcomes.
 
+# turtle 0.1.5
+
+## Create print_methods_run_linear_models
+
+*Make a custom printing function for the run_linear_models function

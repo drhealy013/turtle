@@ -21,8 +21,6 @@
 #' @importFrom dplyr %>% mutate select all_of
 #' @importFrom broom tidy augment
 #' @importFrom broom.mixed tidy
-#' @importFrom lme4 lmer
-#' @importFrom lmerTest lmer
 #' @importFrom purrr safely pmap
 #' @importFrom tidyr expand_grid
 
@@ -133,8 +131,6 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
 
     residuals <- broom::augment(model)$.resid
 
-    print("Model run complete. To view a summary table, use result[['outcome&exposure']]$tidy\n")
-
     list(
       model = model,
       tidy = tidy,
@@ -158,12 +154,13 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
     })
 
     names(results) <- model_names
-    message("Model run complete. To view the summary table, use `$tidy`, e.g., result$tidy")
+    class(results) <- "run_model_result_list"
     return(invisible(results))
   }
 
   # Otherwise, run a single model
   result <- run_single_model(outcome, exposure)
-  message("Model run complete. To view a summary table, use result$tidy")
+  class(result) <- "run_model_result"
   invisible(result)
 }
+
