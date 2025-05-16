@@ -1,7 +1,7 @@
 #' @name run_linear_models
 #' @title Fit a Linear or Mixed Effects Model with Optional Modifiers
 #'
-#' @description This function fits a linear model (`lm`) or a mixed effects model (`lmer`) depending on the presence of random effects. It supports interaction terms, sensitivity covariates, and returns a tidy summary of the model.
+#' @description This function fits a linear model (`lm`) or a mixed effects model (`lmer`) depending on the presence of random effects. It supports interaction terms, sensitivity covariates, and returns a tidy summary of the model. Users can choose whether to compute p-values for mixed models.
 #'
 #' @param data Your dataset containing the variables used in the model.
 #' @param outcome A string specifying the outcome variable.
@@ -10,25 +10,29 @@
 #' @param effect_modifier A string specifying an effect modifier to interact with the exposure.
 #' @param sensitivity_cov A character vector of sensitivity covariates.
 #' @param random_effects A string specifying the random effects structure (e.g., "(1 | group)").
+#' @param p_values Logical. If TRUE (default), uses lmerTest to compute p-values for mixed models. If FALSE, uses lme4 without p-values.
 #'
 #' @return A list containing the fitted model, a tidy summary table, the model formula, residuals, and exposure name.
 #' @export
 #'
-#' @importFrom utils globalVariables
+#' @importFrom utils globalVariables packageVersion
 #' @importFrom stats as.formula lm nobs BIC
 #' @importFrom tibble tibble
 #' @importFrom dplyr %>% mutate select
 #' @importFrom broom tidy augment
+#' @importFrom broom.mixed tidy
 #' @importFrom lme4 lmer
+#' @importFrom lmerTest lmer
 #' @importFrom purrr safely
+
 utils::globalVariables(c("term", "estimate", "conf.low", "conf.high", "std.error", "p.value"))
 
-run_linear_models <- function(data, outcome, exposure, covariates = NULL, effect_modifier = NULL, sensitivity_cov = NULL, random_effects = NULL) {
+run_linear_models <- function(data, outcome, exposure, covariates = NULL, effect_modifier = NULL,
+                              sensitivity_cov = NULL, random_effects = NULL, p_values = TRUE) {
 
   # Version check
   current_version <- utils::packageVersion("turtle")
-  latest_version <- "0.1.1"  # Update this manually with each GitHub push
-
+  latest_version <- "0.1.2"
   if (current_version < latest_version) {
     message("A newer version of turtle is available (", latest_version,
             "). Please reinstall from GitHub to get the latest updates.")
@@ -73,9 +77,20 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL, effect
   }
 
   # Safe model fitting
-  safe_fit <- safely(function(...) {
+  safe_fit <- purrr::safely(function(...) {
     withCallingHandlers(
-      if (model_type == "lmer") lmer(...) else lm(...),
+      if (model_type == "lmer") {
+        if (p_values) {
+          if (!requireNamespace("lmerTest", quietly = TRUE)) {
+            stop("The 'lmerTest' package is required to compute p-values for mixed models. Please install it with install.packages('lmerTest').")
+          }
+          lmerTest::lmer(...)
+        } else {
+          lme4::lmer(...)
+        }
+      } else {
+        lm(...)
+      },
       warning = function(w) {
         warnings <<- c(warnings, conditionMessage(w))
         invokeRestart("muffleWarning")
@@ -98,21 +113,23 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL, effect
 
   model <- result$result
 
-  tidy <- tidy(model, effects = "fixed", conf.int = TRUE) %>%
+  tidy <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE) %>%
     dplyr::select(term, estimate, conf.low, conf.high, std.error, p.value) %>%
-    mutate(error = ifelse(length(warnings) > 0 || length(messages) > 0, paste(c(warnings, messages), collapse = "; "), NA),
-           n_obs = nobs(model),
-           BIC = BIC(model))
+    dplyr::mutate(
+      error = ifelse(length(warnings) > 0 || length(messages) > 0, paste(c(warnings, messages), collapse = "; "), NA),
+      n_obs = nobs(model),
+      BIC = BIC(model)
+    )
 
   if (!is.null(effect_modifier)) {
-    tidy <- tidy %>% mutate(modifier = effect_modifier)
+    tidy <- tidy %>% dplyr::mutate(modifier = effect_modifier)
   }
 
   if (!is.null(sensitivity_cov)) {
-    tidy <- tidy %>% mutate(sensitivity = paste(sensitivity_cov, collapse = ", "))
+    tidy <- tidy %>% dplyr::mutate(sensitivity = paste(sensitivity_cov, collapse = ", "))
   }
 
-  augmented_data <- augment(model)
+  augmented_data <- broom::augment(model)
 
   list(model = model, tidy = tidy, formula = full_formula, residuals = augmented_data$.resid, exposure = exposure)
 }

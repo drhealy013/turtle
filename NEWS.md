@@ -32,3 +32,4 @@
 ## Update runLinearModels
 
 *Added version check to `run_linear_models()` so the user knows if an update is needed or not.
+*Added option to not include p-values, which will switch to using lme4 to run mixed-effect models.
