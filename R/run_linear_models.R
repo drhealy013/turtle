@@ -31,7 +31,7 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
                               random_effects = NULL, p_values = TRUE, verbose = TRUE) {
 
   current_version <- utils::packageVersion("turtle")
-  latest_version <- "0.1.4"
+  latest_version <- "0.1.5"
   if (current_version < latest_version) {
     message("A newer version of turtle is available (", latest_version,
             "). Please reinstall from GitHub to get the latest updates.")
