@@ -151,12 +151,12 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
 
     names(results) <- model_names
     results <- structure(results, class = "run_model_result_list")
-    message("Model run complete.")
+    cat("Model run complete.")
     return(invisible(results))
   }
 
   result <- run_single_model(outcome, exposure)
   result <- structure(result, class = "run_model_result")
-  message("Model run complete.")
+  cat("Model run complete.")
   return(result)
 }
