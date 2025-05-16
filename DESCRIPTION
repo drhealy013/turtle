@@ -1,0 +1,17 @@
+Package: turtle
+Type: Package
+Title: User-Friendly Pipelines for Data Analysis
+Version: 0.1.0
+Author: Darren Healy [aut, cre]
+Maintainer: Darren Healy <d.healy@hotmail.com>
+Description: Provides a collection of simplified, user-friendly functions for common data analysis tasks such as modeling, dimensionality reduction, and visualization. Designed to support users with minimal programming experience by allowing them to specify key inputs (e.g., outcome, exposure, covariates) and automatically handle the underlying code. Applicable to a wide range of data types, including epidemiologic, ecological, and experimental datasets.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports:
+    broom,
+    dplyr,
+    lme4,
+    purrr,
+    tibble
+RoxygenNote: 7.3.2
