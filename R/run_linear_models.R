@@ -32,7 +32,7 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL, effect
 
   # Version check
   current_version <- utils::packageVersion("turtle")
-  latest_version <- "0.1.2"
+  latest_version <- "0.1.3"
   if (current_version < latest_version) {
     message("A newer version of turtle is available (", latest_version,
             "). Please reinstall from GitHub to get the latest updates.")
@@ -113,8 +113,16 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL, effect
 
   model <- result$result
 
-  tidy <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE) %>%
-    dplyr::select(term, estimate, conf.low, conf.high, std.error, p.value) %>%
+  tidy_raw <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)
+
+  # Check if p.value column exists
+  columns_to_select <- c("term", "estimate", "conf.low", "conf.high", "std.error")
+  if ("p.value" %in% names(tidy_raw)) {
+    columns_to_select <- c(columns_to_select, "p.value")
+  }
+
+  tidy <- tidy_raw %>%
+    dplyr::select(dplyr::all_of(columns_to_select)) %>%
     dplyr::mutate(
       error = ifelse(length(warnings) > 0 || length(messages) > 0, paste(c(warnings, messages), collapse = "; "), NA),
       n_obs = nobs(model),
