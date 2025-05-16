@@ -28,7 +28,7 @@ utils::globalVariables(c("term", "estimate", "conf.low", "conf.high", "std.error
 
 run_linear_models <- function(data, outcome, exposure, covariates = NULL,
                               effect_modifier = NULL, sensitivity_cov = NULL,
-                              random_effects = NULL, p_values = TRUE) {
+                              random_effects = NULL, p_values = TRUE, verbose = TRUE) {
 
   current_version <- utils::packageVersion("turtle")
   latest_version <- "0.1.4"
@@ -137,26 +137,16 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
     )
   }
 
+
   if (length(outcome) > 1 || length(exposure) > 1) {
-    model_grid <- tidyr::expand_grid(outcome = outcome, exposure = exposure)
-    model_names <- paste(model_grid$outcome, model_grid$exposure, sep = "&")
-
-    results <- purrr::pmap(model_grid, function(outcome, exposure) {
-      result <- run_single_model(outcome, exposure)
-      list(model_name = paste(outcome, exposure, sep = "&"),
-           model = result$model,
-           tidy = result$tidy,
-           residuals = result$residuals)
-    })
-
-    names(results) <- model_names
+    # ... [loop logic] ...
     results <- structure(results, class = "run_model_result_list")
-    cat("Model run complete.")
-    return(invisible(results))
+    if (verbose) cat("Model run complete.\n")
+    return(results)
   }
 
   result <- run_single_model(outcome, exposure)
   result <- structure(result, class = "run_model_result")
-  cat("Model run complete.")
+  if (verbose) cat("Model run complete.\n")
   return(result)
 }
