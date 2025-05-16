@@ -30,20 +30,17 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
                               effect_modifier = NULL, sensitivity_cov = NULL,
                               random_effects = NULL, p_values = TRUE) {
 
-  # Version check
   current_version <- utils::packageVersion("turtle")
-  latest_version <- "0.1.5"
+  latest_version <- "0.1.4"
   if (current_version < latest_version) {
     message("A newer version of turtle is available (", latest_version,
             "). Please reinstall from GitHub to get the latest updates.")
   }
 
-  # Check for lmerTest if needed
   if (p_values && !requireNamespace("lmerTest", quietly = TRUE)) {
     stop("The 'lmerTest' package is required to compute p-values for mixed models. Please install it with install.packages('lmerTest').")
   }
 
-  # Internal function to handle a single model
   run_single_model <- function(outcome, exposure) {
     fixed_effects <- c(covariates, exposure)
 
@@ -140,7 +137,6 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
     )
   }
 
-  # If multiple outcomes or exposures, loop over combinations
   if (length(outcome) > 1 || length(exposure) > 1) {
     model_grid <- tidyr::expand_grid(outcome = outcome, exposure = exposure)
     model_names <- paste(model_grid$outcome, model_grid$exposure, sep = "&")
@@ -154,13 +150,13 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
     })
 
     names(results) <- model_names
-    class(results) <- "run_model_result_list"
+    results <- structure(results, class = "run_model_result_list")
+    message("Model run complete.")
     return(invisible(results))
   }
 
-  # Otherwise, run a single model
   result <- run_single_model(outcome, exposure)
-  class(result) <- "run_model_result"
-  invisible(result)
+  result <- structure(result, class = "run_model_result")
+  message("Model run complete.")
+  return(invisible(result))
 }
-
