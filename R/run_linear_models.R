@@ -23,6 +23,7 @@
 #' @importFrom broom.mixed tidy
 #' @importFrom purrr safely pmap
 #' @importFrom tidyr expand_grid
+#' @importFrom progress progress_bar
 
 utils::globalVariables(c("term", "estimate", "conf.low", "conf.high", "std.error", "p.value"))
 
@@ -31,71 +32,23 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
                               random_effects = NULL, p_values = TRUE, verbose = TRUE) {
 
   current_version <- utils::packageVersion("turtle")
-  latest_version <- "0.1.5"
-  if (current_version < latest_version) {
-    message("A newer version of turtle is available (", latest_version,
-            "). Please reinstall from GitHub to get the latest updates.")
-  }
+  check_version_warning(current_version)
 
   if (p_values && !requireNamespace("lmerTest", quietly = TRUE)) {
     stop("The 'lmerTest' package is required to compute p-values for mixed models. Please install it with install.packages('lmerTest').")
   }
 
   run_single_model <- function(outcome, exposure) {
-    fixed_effects <- c(covariates, exposure)
-
-    if (!is.null(effect_modifier) && grepl("\\*", exposure)) {
-      if (interactive()) {
-        message("You have specified an interaction term as the exposure (\"", exposure,
-                "\") and also provided an effect modifier (\"", effect_modifier,
-                "\"). This will result in a 3-way interaction: ",
-                exposure, "*", effect_modifier, ".")
-
-        choice <- menu(c("Yes", "No"), title = "Do you want to proceed?")
-        if (choice != 1) {
-          stop("Model fitting aborted by user.")
-        }
-      }
-    }
-
-    if (!is.null(effect_modifier)) {
-      fixed_effects <- c(fixed_effects, paste0(exposure, "*", effect_modifier))
-    }
-
-    if (!is.null(sensitivity_cov)) {
-      fixed_effects <- c(fixed_effects, sensitivity_cov)
-    }
-
-    fixed_formula <- paste(outcome, "~", paste(fixed_effects, collapse = " + "))
-    full_formula <- if (!is.null(random_effects)) {
-      as.formula(paste(fixed_formula, "+", random_effects))
-    } else {
-      as.formula(fixed_formula)
-    }
-
+    full_formula <- build_formula(outcome, exposure, covariates, effect_modifier, sensitivity_cov, random_effects)
     model_type <- if (!is.null(random_effects)) "lmer" else "lm"
     model_fun <- switch(model_type,
                         "lm" = stats::lm,
                         "lmer" = if (p_values) lmerTest::lmer else lme4::lmer)
 
-    warnings <- character()
-    messages <- character()
-
-    safe_fit <- purrr::safely(function(...) {
-      withCallingHandlers(
-        rlang::exec(model_fun, ...),
-        warning = function(w) {
-          warnings <<- c(warnings, conditionMessage(w))
-          invokeRestart("muffleWarning")
-        },
-        message = function(m) {
-          messages <<- c(messages, conditionMessage(m))
-          invokeRestart("muffleMessage")
-        }
-      )
-    })
-
-    result <- safe_fit(formula = full_formula, data = data)
+    fit_result <- fit_model_safely(full_formula, data, model_fun)
+    result <- fit_result$result
+    warnings <- fit_result$warnings
+    messages <- fit_result$messages
 
     if (!is.null(result$error)) {
       tidy <- tibble::tibble(term = NA, estimate = NA, conf.low = NA, conf.high = NA, p.value = NA, error = result$error$message)
@@ -103,29 +56,7 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
     }
 
     model <- result$result
-
-    tidy_raw <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)
-    columns_to_select <- c("term", "estimate", "conf.low", "conf.high", "std.error")
-    if ("p.value" %in% names(tidy_raw)) {
-      columns_to_select <- c(columns_to_select, "p.value")
-    }
-
-    tidy <- tidy_raw %>%
-      dplyr::select(dplyr::all_of(columns_to_select)) %>%
-      dplyr::mutate(
-        error = ifelse(length(warnings) > 0 || length(messages) > 0, paste(c(warnings, messages), collapse = "; "), NA),
-        n_obs = stats::nobs(model),
-        BIC = stats::BIC(model)
-      )
-
-    if (!is.null(effect_modifier)) {
-      tidy <- tidy %>% dplyr::mutate(modifier = effect_modifier)
-    }
-
-    if (!is.null(sensitivity_cov)) {
-      tidy <- tidy %>% dplyr::mutate(sensitivity = paste(sensitivity_cov, collapse = ", "))
-    }
-
+    tidy <- tidy_model_output(model, warnings, messages, effect_modifier, sensitivity_cov)
     residuals <- broom::augment(model)$.resid
 
     list(
@@ -137,16 +68,45 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
     )
   }
 
+  if (length(outcome) > 1 || length(exposure) > 1 || length(effect_modifier) > 1) {
+    model_grid <- tidyr::expand_grid(
+      outcome = outcome,
+      exposure = exposure,
+      effect_modifier = if (is.null(effect_modifier)) NA else effect_modifier
+    )
 
-  if (length(outcome) > 1 || length(exposure) > 1) {
-    # ... [loop logic] ...
+    if (verbose) {
+      pb <- progress::progress_bar$new(
+        format = "  Fitting models [:bar] :percent eta: :eta",
+        total = nrow(model_grid),
+        clear = FALSE,
+        width = 60
+      )
+    }
+
+    results <- purrr::pmap(model_grid, function(outcome, exposure, effect_modifier) {
+      if (verbose) pb$tick()
+      result <- run_single_model(outcome = outcome, exposure = exposure)
+      model_name <- paste(outcome, exposure, effect_modifier, sep = "&")
+      list(
+        model_name = model_name,
+        model = result$model,
+        tidy = result$tidy,
+        residuals = result$residuals,
+        exposure = result$exposure,
+        formula = result$formula
+      )
+    })
+
+    names(results) <- purrr::map_chr(results, "model_name")
     results <- structure(results, class = "run_model_result_list")
-    if (verbose) cat("Model run complete.\n")
+    if (verbose) print_assignment_reminder("run_linear_models")
     return(results)
   }
 
   result <- run_single_model(outcome, exposure)
   result <- structure(result, class = "run_model_result")
-  if (verbose) cat("Model run complete.\n")
+  if (verbose) print_assignment_reminder("run_linear_models")
   return(result)
 }
+

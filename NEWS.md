@@ -50,4 +50,4 @@
 
 ## Create print_methods_run_linear_models
 
-*Make a custom printing function for the run_linear_models function
+*Make a custom printing function for the run_linear_models function to provide feedback to users not familiar with data analysis
