@@ -4,8 +4,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/drhealy013/turtle/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/drhealy013/turtle/actions/workflows/R-CMD-check.yaml)
-![Codecov test coverage](https://app.codecov.io/gh/drhealy013/turtle)
-![pkgdown](https://github.com/drhealy013/turtle/actions/workflows/pkgdown.yaml)
+[![codecov](https://codecov.io/gh/drhealy013/turtle/branch/main/graph/badge.svg)](https://codecov.io/gh/drhealy013/turtle)
+[![pkgdown](https://github.com/drhealy013/turtle/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/drhealy013/turtle/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
 `turtle` is an R package that provides simplified, user-friendly
@@ -52,10 +52,9 @@ the function, or by storing them in a variable.
 
 ``` r
 library(turtle)
-library(purrr)
 
-outcomes <- set_names(c("mpg", "disp"))
-exposures <- set_names(c("cyl"))
+outcomes <- c("mpg", "disp")
+exposures <- c("cyl")
 
 result <- run_linear_models(
   data = mtcars,

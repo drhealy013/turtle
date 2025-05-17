@@ -95,7 +95,11 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
     stop("The 'lmerTest' package is required to compute p-values for mixed models. Please install it with install.packages('lmerTest').")
   }
 
-  run_single_model <- function(outcome, exposure) {
+  run_single_model <- function(outcome, exposure, effect_modifier) {
+    if (is.null(effect_modifier) || is.na(effect_modifier)) {
+      effect_modifier <- NULL
+    }
+
     full_formula <- build_formula(outcome, exposure, covariates, effect_modifier, sensitivity_cov, random_effects)
     model_type <- if (!is.null(random_effects)) "lmer" else "lm"
     model_fun <- switch(model_type,
@@ -143,8 +147,8 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
 
     results <- purrr::pmap(model_grid, function(outcome, exposure, effect_modifier) {
       if (verbose) pb$tick()
-      result <- run_single_model(outcome = outcome, exposure = exposure)
-      model_name <- paste(outcome, exposure, effect_modifier, sep = "&")
+      result <- run_single_model(outcome = outcome, exposure = exposure, effect_modifier = effect_modifier)
+      model_name <- paste(c(outcome, exposure, effect_modifier), collapse = "&")
       list(
         model_name = model_name,
         model = result$model,
@@ -161,9 +165,10 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
     return(results)
   }
 
-  result <- run_single_model(outcome, exposure)
+  result <- run_single_model(outcome, exposure, effect_modifier)
   result <- structure(result, class = "run_model_result")
   if (verbose) print_assignment_reminder("run_linear_models")
   return(result)
 }
+
 
