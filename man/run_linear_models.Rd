@@ -31,10 +31,12 @@ This function fits a linear model (`lm`) or a mixed effects model (`lmer`) depen
 
 data <- mtcars
 
+\dontrun{
 # 1. Run a single model with one outcome and one exposure
 run_linear_models(data = data,
                   outcome = "mpg",
                   exposure = "cyl")
+}
 
 # 2. Store the output for a single model
 model_output <- run_linear_models(data = data,
