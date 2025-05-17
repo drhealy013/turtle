@@ -49,8 +49,10 @@ multi_output <- run_linear_models(data = data,
 multi_output[["mpg&cyl"]]$tidy  # access a specific model's tidy results
 
 # 4. Use named vectors for outcomes and exposures
-outcomes <- set_names(c("mpg", "hp"))
-exposures <- set_names(c("cyl", "wt"))
+outcomes <- c("mpg", "hp")
+names(outcomes) <- outcomes
+exposures <- c("cyl", "wt")
+names(exposures) <- exposures
 named_output <- run_linear_models(data = data,
                                   outcome = outcomes,
                                   exposure = exposures)
@@ -64,7 +66,8 @@ covar_output <- run_linear_models(data = data,
 covar_output$tidy
 
 # 6. Include covariates using a named vector
-covars <- set_names(c("wt", "hp"))
+covars <- c("wt", "hp")
+names(covars) <- covars
 named_covar_output <- run_linear_models(data = data,
                                         outcome = "mpg",
                                         exposure = "cyl",

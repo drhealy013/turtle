@@ -14,9 +14,9 @@ knitr::opts_chunk$set(
 # turtle
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/drhealy013/turtle)](https://github.com/drhealy013/turtle/actions/workflows/R-CMD-check.yaml)
 [![R-CMD-check](https://github.com/drhealy013/turtle/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/drhealy013/turtle/actions/workflows/R-CMD-check.yaml)
-[![Codecov test coverage](https://codecov.io/gh/drhealy013/turtle/graph/badge.svg)](https://app.codecov.io/gh/drhealy013/turtle)
+![Codecov test coverage](https://app.codecov.io/gh/drhealy013/turtle)
+![pkgdown](https://github.com/drhealy013/turtle/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
 `turtle` is an R package that provides simplified, user-friendly functions for common data analysis tasks such as modeling, dimensionality reduction, and visualization. It is designed to support users with minimal programming experience by allowing them to specify key inputs (e.g., outcome, exposure, covariates) and automatically handle the underlying code. It is applicable to a wide range of data types, including epidemiological, ecological, and experimental datasets.
