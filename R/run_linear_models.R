@@ -12,6 +12,58 @@
 #' @param random_effects A string specifying the random effects structure (e.g., "(1 | group)").
 #' @param p_values Logical. If TRUE (default), uses lmerTest to compute p-values for mixed models. If FALSE, uses lme4 without p-values.
 #'
+#' @examples
+#' # Examples
+#'
+#' data <- mtcars
+#'
+#' # 1. Run a single model with one outcome and one exposure
+#' run_linear_models(data = data,
+#'                   outcome = "mpg",
+#'                   exposure = "cyl")
+#'
+#' # 2. Store the output for a single model
+#' model_output <- run_linear_models(data = data,
+#'                                   outcome = "mpg",
+#'                                   exposure = "cyl")
+#' model_output$tidy  # access tidy results
+#'
+#' # 3. Store output for multiple outcomes and exposures
+#' multi_output <- run_linear_models(data = data,
+#'                                   outcome = c("mpg", "hp"),
+#'                                   exposure = c("cyl", "wt"))
+#' multi_output[["mpg&cyl"]]$tidy  # access a specific model's tidy results
+#'
+#' # 4. Use named vectors for outcomes and exposures
+#' outcomes <- set_names(c("mpg", "hp"))
+#' exposures <- set_names(c("cyl", "wt"))
+#' named_output <- run_linear_models(data = data,
+#'                                   outcome = outcomes,
+#'                                   exposure = exposures)
+#' named_output[["hp&wt"]]$tidy
+#'
+#' # 5. Include covariates directly
+#' covar_output <- run_linear_models(data = data,
+#'                                   outcome = "mpg",
+#'                                   exposure = "cyl",
+#'                                   covariates = c("wt", "hp"))
+#' covar_output$tidy
+#'
+#' # 6. Include covariates using a named vector
+#' covars <- set_names(c("wt", "hp"))
+#' named_covar_output <- run_linear_models(data = data,
+#'                                         outcome = "mpg",
+#'                                         exposure = "cyl",
+#'                                         covariates = covars)
+#' named_covar_output$tidy
+#'
+#' # 7. Include an effect modifier (e.g., interaction term)
+#' interaction_output <- run_linear_models(data = data,
+#'                                         outcome = "mpg",
+#'                                         exposure = "cyl",
+#'                                         effect_modifier = "am")
+#' interaction_output$tidy
+#'
 #' @return A list containing model results. If multiple outcomes or exposures are provided, returns a named list of results.
 #' @export
 #'

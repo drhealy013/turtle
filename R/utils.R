@@ -1,3 +1,36 @@
+#' Generate Assignment Reminder Message
+#'
+#' @name generate_assignment_reminder
+#'
+#' @description
+#' This internal helper function constructs a reminder message to inform users that they should assign
+#' the output of a function to a variable. It is used by `print_assignment_reminder()` to generate
+#' consistent and informative guidance.
+#'
+#' @param function_name A string indicating the name of the function being run (e.g., `"run_linear_models"`).
+#'   This name will be inserted into the message to personalize the reminder.
+#'
+#' @details
+#' This function does not print anything itself. Instead, it returns a character vector containing
+#' the lines of the reminder message. It is intended for internal use by functions that want to
+#' provide assignment guidance to users.
+#'
+#' @return A character vector containing the lines of the reminder message.
+#'
+#' @keywords internal
+#' @noRd
+
+generate_assignment_reminder <- function(function_name = "this function") {
+  c(
+    paste0("\nNote: You ran `", function_name, "` without assigning the result to a variable."),
+    "To access model results later, assign the output like this:\n",
+    paste0(" results <- ", function_name, "(...)\n"),
+    "Then you can access the tidy results with:\n",
+    " results$tidy # for a single model\n",
+    " results[[\"outcome&exposure\"]]$tidy # for multiple models\n"
+  )
+}
+
 #' Print a Reminder to Assign Function Output
 #'
 #' @name print_assignment_reminder
@@ -17,19 +50,13 @@
 #'
 #' @return No return value. This function is called for its side effect: printing a message to the console.
 #'
-#' @examples
-#' print_assignment_reminder("run_linear_models")
-#'
-#' @export
+#' @keywords internal
+#' @noRd
 
 print_assignment_reminder <- function(function_name = "this function") {
   if (identical(sys.nframe(), 1L)) {
-    message("\nNote: You ran `", function_name, "` without assigning the result to a variable.")
-    message("To access model results later, assign the output like this:\n")
-    message("  results <- ", function_name, "(...)\n")
-    message("Then you can access the tidy results with:\n")
-    message("  results$tidy  # for a single model\n")
-    message("  results[[\"outcome&exposure\"]]$tidy  # for multiple models\n")
+    message_lines <- generate_assignment_reminder(function_name)
+    for (line in message_lines) message(line)
   }
 }
 
@@ -50,14 +77,16 @@ print_assignment_reminder <- function(function_name = "this function") {
 #'
 #' @return No return value. Called for its side effect: printing a message to the console.
 #'
-#' @examples
-#' check_version_warning(packageVersion("turtle"))
-#'
-#' @export
+#' @keywords internal
+#' @noRd
 
 check_version_warning <- function(current_version, latest_version = "0.1.6") {
-  if (current_version < latest_version) {
+  current_version <- as.character(current_version)
+  latest_version <- as.character(latest_version)
+
+  if (utils::compareVersion(current_version, latest_version) < 0) {
     message("A newer version of turtle is available (", latest_version,
             "). Please reinstall from GitHub to get the latest updates.")
   }
 }
+

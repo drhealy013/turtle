@@ -14,13 +14,9 @@
 #'
 #' @return A model formula object.
 #'
-#' @examples
-#' build_formula("y", "x", covariates = c("age", "sex"),
-#'               effect_modifier = "group",
-#'               sensitivity_cov = NULL,
-#'               random_effects = "(1 | id)")
-#'
-#' @export
+#' @keywords internal
+#' @noRd
+
 
 build_formula <- function(outcome, exposure, covariates, effect_modifier, sensitivity_cov, random_effects) {
   fixed_effects <- c(covariates, exposure)
@@ -50,10 +46,8 @@ build_formula <- function(outcome, exposure, covariates, effect_modifier, sensit
 #'
 #' @return A list with three elements: `result` (model or error), `warnings`, and `messages`.
 #'
-#' @examples
-#' fit_model_safely(y ~ x, data = mtcars, model_fun = lm)
-#'
-#' @export
+#' @keywords internal
+#' @noRd
 
 fit_model_safely <- function(formula, data, model_fun) {
   warnings <- character()
@@ -92,15 +86,9 @@ fit_model_safely <- function(formula, data, model_fun) {
 #'
 #' @return A tibble containing the tidy model output.
 #'
-#' @examples
-#' model <- lm(mpg ~ wt + hp, data = mtcars)
-#' tidy_model_output(model,
-#'                   warnings = NULL,
-#'                   messages = NULL,
-#'                   effect_modifier = NULL,
-#'                   sensitivity_cov = NULL)
-#'
-#' @export
+#' @keywords internal
+#' @noRd
+
 
 tidy_model_output <- function(model, warnings, messages, effect_modifier, sensitivity_cov) {
   tidy_raw <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)

@@ -26,3 +26,56 @@ A list containing model results. If multiple outcomes or exposures are provided,
 \description{
 This function fits a linear model (`lm`) or a mixed effects model (`lmer`) depending on the presence of random effects. It supports interaction terms, sensitivity covariates, and returns a tidy summary of the model. Users can choose whether to compute p-values for mixed models. It also supports looping over multiple outcomes and exposures.
 }
+\examples{
+# Examples
+
+data <- mtcars
+
+# 1. Run a single model with one outcome and one exposure
+run_linear_models(data = data,
+                  outcome = "mpg",
+                  exposure = "cyl")
+
+# 2. Store the output for a single model
+model_output <- run_linear_models(data = data,
+                                  outcome = "mpg",
+                                  exposure = "cyl")
+model_output$tidy  # access tidy results
+
+# 3. Store output for multiple outcomes and exposures
+multi_output <- run_linear_models(data = data,
+                                  outcome = c("mpg", "hp"),
+                                  exposure = c("cyl", "wt"))
+multi_output[["mpg&cyl"]]$tidy  # access a specific model's tidy results
+
+# 4. Use named vectors for outcomes and exposures
+outcomes <- set_names(c("mpg", "hp"))
+exposures <- set_names(c("cyl", "wt"))
+named_output <- run_linear_models(data = data,
+                                  outcome = outcomes,
+                                  exposure = exposures)
+named_output[["hp&wt"]]$tidy
+
+# 5. Include covariates directly
+covar_output <- run_linear_models(data = data,
+                                  outcome = "mpg",
+                                  exposure = "cyl",
+                                  covariates = c("wt", "hp"))
+covar_output$tidy
+
+# 6. Include covariates using a named vector
+covars <- set_names(c("wt", "hp"))
+named_covar_output <- run_linear_models(data = data,
+                                        outcome = "mpg",
+                                        exposure = "cyl",
+                                        covariates = covars)
+named_covar_output$tidy
+
+# 7. Include an effect modifier (e.g., interaction term)
+interaction_output <- run_linear_models(data = data,
+                                        outcome = "mpg",
+                                        exposure = "cyl",
+                                        effect_modifier = "am")
+interaction_output$tidy
+
+}

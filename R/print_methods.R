@@ -10,13 +10,9 @@
 #'
 #' @return No return value. This function is called for its side effect: printing a formatted summary to the console.
 #'
-#' @examples
-#' \dontrun{
-#' result <- run_linear_models(data, outcome = "y", exposure = "x")
-#' result  # triggers this print method
-#' }
-#'
-#' @export
+#' @keywords internal
+#' @noRd
+
 print.run_model_result <- function(x, ...) {
   cat("Model Formula:\n")
   print(x$formula)
@@ -46,13 +42,9 @@ print.run_model_result <- function(x, ...) {
 #'
 #' @return No return value. This function is called for its side effect: printing a formatted summary to the console.
 #'
-#' @examples
-#' \dontrun{
-#' results <- run_linear_models(data, outcome = c("y1", "y2"), exposure = c("x1", "x2"))
-#' results  # triggers this print method
-#' }
-#'
-#' @export
+#' @keywords internal
+#' @noRd
+
 print.run_model_result_list <- function(x, ...) {
   cat("List of model results:\n")
   cat(paste0("  - ", names(x)), sep = "\n")
