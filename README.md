@@ -4,6 +4,9 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/drhealy013/turtle)](https://github.com/drhealy013/turtle/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/drhealy013/turtle/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/drhealy013/turtle/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/drhealy013/turtle/graph/badge.svg)](https://app.codecov.io/gh/drhealy013/turtle)
 <!-- badges: end -->
 
 `turtle` is an R package that provides simplified, user-friendly
