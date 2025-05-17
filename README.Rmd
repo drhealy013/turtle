@@ -34,13 +34,31 @@ pak::pak("drhealy013/turtle")
 
 Here’s a basic example using the built-in `mtcars` dataset:
 
-```{r example}
+```{r}
 library(turtle)
 
 result <- run_linear_models(
   data = mtcars,
   outcome = "mpg",
   exposure = "wt"
+)
+
+result$tidy
+```
+
+The function also takes lists of exposures and/or outcomes and loops through the different combinations. These can be provided directly to the function, or by storing them in a variable.
+
+```{r}
+library(turtle)
+library(purrr)
+
+outcomes <- set_names(c("mpg", "disp"))
+exposures <- set_names(c("cyl"))
+
+result <- run_linear_models(
+  data = mtcars,
+  outcome = outcomes,
+  exposure = exposures
 )
 
 result$tidy

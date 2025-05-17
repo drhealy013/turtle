@@ -17,8 +17,14 @@
 #' @keywords internal
 #' @noRd
 
-
 build_formula <- function(outcome, exposure, covariates, effect_modifier, sensitivity_cov, random_effects) {
+  if (length(outcome) != 1) {
+    stop("Only one outcome should be passed to build_formula() at a time.")
+  }
+  if (length(exposure) != 1) {
+    stop("Only one exposure should be passed to build_formula() at a time.")
+  }
+
   fixed_effects <- c(covariates, exposure)
   if (!is.null(effect_modifier)) {
     fixed_effects <- c(fixed_effects, paste0(exposure, "*", effect_modifier))
@@ -26,6 +32,7 @@ build_formula <- function(outcome, exposure, covariates, effect_modifier, sensit
   if (!is.null(sensitivity_cov)) {
     fixed_effects <- c(fixed_effects, sensitivity_cov)
   }
+
   fixed_formula <- paste(outcome, "~", paste(fixed_effects, collapse = " + "))
   if (!is.null(random_effects)) {
     return(as.formula(paste(fixed_formula, "+", random_effects)))
@@ -88,7 +95,6 @@ fit_model_safely <- function(formula, data, model_fun) {
 #'
 #' @keywords internal
 #' @noRd
-
 
 tidy_model_output <- function(model, warnings, messages, effect_modifier, sensitivity_cov) {
   tidy_raw <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)

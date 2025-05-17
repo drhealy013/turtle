@@ -14,4 +14,14 @@ test_that("build_formula constructs correct formulas", {
 
   f5 <- build_formula("y", "x", c("a", "b"), NULL, NULL, "(1 | group)")
   expect_equal(deparse(f5), deparse(as.formula("y ~ a + b + x + (1 | group)")))
+
+  expect_error(
+    build_formula(c("y1", "y2"), "x", c("a", "b"), NULL, NULL, NULL),
+    "Only one outcome should be passed to build_formula\\(\\) at a time\\."
+  )
+
+  expect_error(
+    build_formula("y", c("x1", "x2"), c("a", "b"), NULL, NULL, NULL),
+    "Only one exposure should be passed to build_formula\\(\\) at a time\\."
+  )
 })

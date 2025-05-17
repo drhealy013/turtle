@@ -46,6 +46,33 @@ result$tidy
 #> 2 wt             -5.34    -6.49     -4.20     0.559 1.29e-10 NA       32  170.
 ```
 
+The function also takes lists of exposures and/or outcomes and loops
+through the different combinations. These can be provided directly to
+the function, or by storing them in a variable.
+
+``` r
+library(turtle)
+library(purrr)
+
+outcomes <- set_names(c("mpg", "disp"))
+exposures <- set_names(c("cyl"))
+
+result <- run_linear_models(
+  data = mtcars,
+  outcome = outcomes,
+  exposure = exposures
+)
+#> Warning in formula.character(object, env = baseenv()): Using formula(x) is deprecated when x is a character vector of length > 1.
+#>   Consider formula(paste(x, collapse = " ")) instead.
+
+result$tidy
+#> # A tibble: 2 × 9
+#>   term        estimate conf.low conf.high std.error  p.value error n_obs   BIC
+#>   <chr>          <dbl>    <dbl>     <dbl>     <dbl>    <dbl> <lgl> <int> <dbl>
+#> 1 (Intercept)    37.9     33.6      42.1      2.07  8.37e-18 NA       32  174.
+#> 2 cyl            -2.88    -3.53     -2.22     0.322 6.11e-10 NA       32  174.
+```
+
 ## Features
 
 - Fits linear (`lm`) or mixed effects (`lmer`) models
