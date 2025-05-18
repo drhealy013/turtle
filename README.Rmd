@@ -19,10 +19,13 @@ knitr::opts_chunk$set(
 [![pkgdown](https://github.com/drhealy013/turtle/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/drhealy013/turtle/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
+## Package Overview
 
-`turtle` is an R package that provides simplified, user-friendly functions for common data analysis tasks such as modeling, dimensionality reduction, and visualization. It is designed to support users with minimal programming experience by allowing them to specify key inputs (e.g., outcome, exposure, covariates) and automatically handle the underlying code. It is applicable to a wide range of data types, including epidemiological, ecological, and experimental datasets.
+`turtle` is an R package that provides simplified, user-friendly functions for common data analysis tasks such as modelling, dimensionality reduction, and visualization. It is designed to support users with minimal programming knowledge by allowing them to specify key inputs (e.g., outcome, exposure, covariates etc.) and automatically handle the underlying code. It is applicable to a wide range of data types, including epidemiological, ecological, and experimental datasets. The core functions include:
 
-## Installation
+- `run_linear_models()`: Fit linear or mixed models (can be run for a single model or many models).
+
+## How to get the package
 
 You can install the development version of `turtle` from GitHub with:
 
@@ -31,19 +34,27 @@ You can install the development version of `turtle` from GitHub with:
 pak::pak("drhealy013/turtle")
 ```
 
-## Example
+## Workflow 
 
-Here’s a basic example using the built-in `mtcars` dataset:
+Here is an example of how the different functions can be used in your data analysis:
+
+For more detail on each of the different sections of your data analysis, you can find relevant guides at the end under the "Learn More" section.
+
+## Quick Start
+
+Here’s a basic example of the `run_linear_models()` using the built-in `mtcars` dataset:
 
 ```{r}
 library(turtle)
 
+# Example: Does car weight affect fuel efficiency?
 result <- run_linear_models(
   data = mtcars,
-  outcome = "mpg",
-  exposure = "wt"
+  outcome = "mpg",   # miles per gallon
+  exposure = "wt"    # weight of the car
 )
 
+# View the results
 result$tidy
 ```
 
@@ -64,6 +75,12 @@ result <- run_linear_models(
 result$tidy
 ```
 
+You can check the help section of the run_linear_models() (by using "?run_linear_models() in R) or the run_linear_models guide under "Learn More" for more examples.
+
+## Notes
+Deprecation warning:
+You may see a warning related to formula.character() when running examples. This originates from a dependency package and does not affect the functionality or results of turtle. The issue is expected to be resolved in a future update of the underlying package.
+
 ## Features
 
 - Fits linear (`lm`) or mixed effects (`lmer`) models
@@ -72,10 +89,18 @@ result$tidy
   - Effect modifiers
   - Sensitivity covariates
   - Random effects
-- Returns:
-  - Tidy model summary
-  - Residuals
-  - Model formula
+- Returns a named list of model results, each containing:
+  - `model`: The fitted model object (`lm` or `lmer`)
+  - `tidy`: A tidy summary of model coefficients
+  - `residuals`: Model residuals
+  - `formula`: The model formula used
+  - `exposure`: The exposure variable used
+  - `model_name`: A unique identifier for the model
+- If `return_grid = TRUE`, the full model grid is attached as an attribute
+
+## Learn More
+
+
 
 ## License
 

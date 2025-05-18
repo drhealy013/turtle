@@ -80,7 +80,7 @@ print_assignment_reminder <- function(function_name = "this function") {
 #' @keywords internal
 #' @noRd
 
-check_version_warning <- function(current_version, latest_version = "0.1.6") {
+check_version_warning <- function(current_version, latest_version = "0.1.7") {
   current_version <- as.character(current_version)
   latest_version <- as.character(latest_version)
 

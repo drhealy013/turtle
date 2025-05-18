@@ -62,3 +62,9 @@
   -Turn some of the repetitive code in run_linear_models into utils so they can be more easily updated and utilised elsewhere
 *Update run_linear_models
   -Remove the model_helpers and utils and instead call them from their separate files.
+  
+# turtle 0.1.7
+
+## Created model_helpers
+
+*make_model_name and detect_model_notes to help clean up run_linear_models code.

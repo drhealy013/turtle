@@ -1,3 +1,5 @@
+library(testthat)
+
 test_that("generate_assignment_reminder returns expected message", {
   msg <- generate_assignment_reminder("my_function")
 

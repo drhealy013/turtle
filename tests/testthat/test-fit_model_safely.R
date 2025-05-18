@@ -1,3 +1,5 @@
+library(testthat)
+
 test_that("fit_model_safely returns expected structure and fits model correctly", {
   result <- fit_model_safely(mpg ~ wt, data = mtcars, model_fun = lm)
 

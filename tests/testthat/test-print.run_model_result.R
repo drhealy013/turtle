@@ -1,3 +1,5 @@
+library(testthat)
+
 test_that("print.run_model_result prints expected output", {
   # Create a mock run_model_result object
   model <- lm(mpg ~ wt, data = mtcars)

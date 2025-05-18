@@ -6,6 +6,14 @@ name: pkgdown
 on:
   push:
     branches: [main, master]
+    paths:
+      - README.Rmd
+      - README.md
+      - vignettes/**
+      - R/**
+      - man/**
+      - DESCRIPTION
+      - NAMESPACE
   pull_request:
   release:
     types: [published]

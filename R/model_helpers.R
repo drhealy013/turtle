@@ -18,26 +18,32 @@
 #' @noRd
 
 build_formula <- function(outcome, exposure, covariates, effect_modifier, sensitivity_cov, random_effects) {
-  if (length(outcome) != 1) {
-    stop("Only one outcome should be passed to build_formula() at a time.")
+  if (length(outcome) > 1) {
+    warning("Multiple outcomes supplied to build_formula(); using only the first: ", outcome[1])
+    outcome <- outcome[1]
   }
-  if (length(exposure) != 1) {
-    stop("Only one exposure should be passed to build_formula() at a time.")
+  if (length(exposure) > 1) {
+    warning("Multiple exposures supplied to build_formula(); using only the first: ", exposure[1])
+    exposure <- exposure[1]
   }
 
-  fixed_effects <- c(covariates, exposure)
   if (!is.null(effect_modifier)) {
-    fixed_effects <- c(fixed_effects, paste0(exposure, "*", effect_modifier))
+    fixed_effects <- c(covariates, paste0(exposure, "*", effect_modifier))
+  } else {
+    fixed_effects <- c(covariates, exposure)
   }
+
   if (!is.null(sensitivity_cov)) {
     fixed_effects <- c(fixed_effects, sensitivity_cov)
   }
 
-  fixed_formula <- paste(outcome, "~", paste(fixed_effects, collapse = " + "))
+  full_formula <- paste(outcome, "~", paste(fixed_effects, collapse = " + "))
   if (!is.null(random_effects)) {
-    return(as.formula(paste(fixed_formula, "+", random_effects)))
+    full_formula <- paste(full_formula, "+", random_effects)
   }
-  as.formula(fixed_formula)
+
+  full_formula <- paste(full_formula, collapse = " ")
+  stats::as.formula(full_formula)
 }
 
 #' Fit Model Safely
@@ -60,9 +66,9 @@ fit_model_safely <- function(formula, data, model_fun) {
   warnings <- character()
   messages <- character()
 
-  safe_fit <- purrr::safely(function(...) {
+  safe_fit <- purrr::safely(function(formula, data) {
     withCallingHandlers(
-      rlang::exec(model_fun, ...),
+      model_fun(formula = formula, data = data),
       warning = function(w) {
         warnings <<- c(warnings, conditionMessage(w))
         invokeRestart("muffleWarning")
@@ -74,7 +80,7 @@ fit_model_safely <- function(formula, data, model_fun) {
     )
   })
 
-  result <- safe_fit(formula = formula, data = data)
+  result <- safe_fit(formula, data)
   list(result = result, warnings = warnings, messages = messages)
 }
 
@@ -121,3 +127,78 @@ tidy_model_output <- function(model, warnings, messages, effect_modifier, sensit
 
   tidy
 }
+
+#' Construct a Model Identifier Name
+#'
+#' @name make_model_name
+#'
+#' @description
+#' Generates a unique model name string by combining outcome, exposure, and optionally an effect modifier. This is used to label model results in multi-model workflows.
+#'
+#' @param outcome A string specifying the outcome variable.
+#' @param exposure A string specifying the exposure variable.
+#' @param effect_modifier An optional string specifying an effect modifier to include in the model name.
+#'
+#' @return A character string representing the model identifier (e.g., `"outcome&exposure"` or `"outcome&exposure&modifier"`).
+#'
+#' @keywords internal
+#' @noRd
+
+make_model_name <- function(outcome, exposure, effect_modifier = NULL) {
+  parts <- c(outcome, exposure)
+  if (!is.null(effect_modifier) && !is.na(effect_modifier)) {
+    parts <- c(parts, effect_modifier)
+  }
+  paste(parts, collapse = "&")
+}
+
+#' Detect Model Notes: Dropped Terms and Singularity
+#'
+#' @name detect_model_notes
+#'
+#' @description
+#' Inspects a fitted model object (`lm` or `lmerMod`) and returns a character string summarizing any modeling issues, such as dropped terms due to collinearity or singularity in mixed models. This is useful for diagnosing model behavior and surfacing important notes in multi-model workflows.
+#'
+#' @param model A fitted model object of class `lm` or `lmerMod`.
+#'
+#' @return A character string summarizing any detected issues (e.g., dropped terms or singularity warnings), or `NA_character_` if no issues are found.
+#'
+#' @keywords internal
+#' @noRd
+
+detect_model_notes <- function(model) {
+  notes <- character()
+
+  if (inherits(model, "lm")) {
+    dropped <- alias(model)$Complete
+    if (!is.null(dropped)) {
+      dropped_vars <- rownames(dropped)
+      if (length(dropped_vars) > 0) {
+        notes <- c(notes, paste0(
+          "Dropped due to collinearity: ",
+          paste(dropped_vars, collapse = ", ")
+        ))
+      }
+    }
+  }
+
+  if (inherits(model, "lmerMod")) {
+    if (lme4::isSingular(model)) {
+      notes <- c(notes, "Singular fit detected: model is singular; some terms may be unidentifiable.")
+    }
+
+    terms_all <- attr(terms(model), "term.labels")
+    terms_fitted <- rownames(lme4::fixef(model))
+    dropped_terms <- setdiff(terms_all, terms_fitted)
+    if (length(dropped_terms) > 0) {
+      notes <- c(notes, paste0(
+        "Possibly dropped fixed effects: ",
+        paste(dropped_terms, collapse = ", ")
+      ))
+    }
+  }
+
+  if (length(notes) == 0) return(NA_character_)
+  paste(notes, collapse = " | ")
+}
+

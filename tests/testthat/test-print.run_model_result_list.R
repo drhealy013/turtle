@@ -1,3 +1,4 @@
+library(testthat)
 
 test_that("print.run_model_result_list prints expected output", {
   # Create a mock list of run_model_result objects
