@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">turtle</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,9 +51,17 @@
 </h1></div>
 <!-- badges: start -->
 
-<p><code>turtle</code> is an R package that provides simplified, user-friendly functions for common data analysis tasks such as modeling, dimensionality reduction, and visualization. It is designed to support users with minimal programming experience by allowing them to specify key inputs (e.g., outcome, exposure, covariates) and automatically handle the underlying code. It is applicable to a wide range of data types, including epidemiological, ecological, and experimental datasets.</p>
 <div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+<h2 id="package-overview">Package Overview<a class="anchor" aria-label="anchor" href="#package-overview"></a>
+</h2>
+<p><code>turtle</code> is an R package that provides simplified, user-friendly functions for common data analysis tasks such as modelling, dimensionality reduction, and visualization. It is designed to support users with minimal programming knowledge by allowing them to specify key inputs (e.g., outcome, exposure, covariates etc.) and automatically handle the underlying code. It is applicable to a wide range of data types, including epidemiological, ecological, and experimental datasets. The core functions include:</p>
+<ul>
+<li>
+<code><a href="reference/run_linear_models.html">run_linear_models()</a></code>: Fit linear or mixed models (can be run for a single model or many models).</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="how-to-get-the-package">How to get the package<a class="anchor" aria-label="anchor" href="#how-to-get-the-package"></a>
 </h2>
 <p>You can install the development version of <code>turtle</code> from GitHub with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -61,18 +69,26 @@
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"drhealy013/turtle"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="workflow">Workflow<a class="anchor" aria-label="anchor" href="#workflow"></a>
 </h2>
-<p>Here’s a basic example using the built-in <code>mtcars</code> dataset:</p>
+<p>Here is an example of how the different functions can be used in your data analysis:</p>
+<p>For more detail on each of the different sections of your data analysis, you can find relevant guides at the end under the “Learn More” section.</p>
+</div>
+<div class="section level2">
+<h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+</h2>
+<p>Here’s a basic example of the <code><a href="reference/run_linear_models.html">run_linear_models()</a></code> using the built-in <code>mtcars</code> dataset:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/drhealy013/turtle" class="external-link">turtle</a></span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Example: Does car weight affect fuel efficiency?</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/run_linear_models.html">run_linear_models</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">mtcars</span>,</span>
-<span>  outcome <span class="op">=</span> <span class="st">"mpg"</span>,</span>
-<span>  exposure <span class="op">=</span> <span class="st">"wt"</span></span>
+<span>  outcome <span class="op">=</span> <span class="st">"mpg"</span>,   <span class="co"># miles per gallon</span></span>
+<span>  exposure <span class="op">=</span> <span class="st">"wt"</span>    <span class="co"># weight of the car</span></span>
 <span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># View the results</span></span>
 <span><span class="va">result</span><span class="op">$</span><span class="va">tidy</span></span>
 <span><span class="co">#&gt; # A tibble: 2 × 9</span></span>
 <span><span class="co">#&gt;   term        estimate conf.low conf.high std.error  p.value error n_obs   BIC</span></span>
@@ -100,6 +116,12 @@
 <span><span class="co">#&gt;   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;lgl&gt; &lt;int&gt; &lt;dbl&gt;</span></span>
 <span><span class="co">#&gt; 1 (Intercept)    37.9     33.6      42.1      2.07  8.37e-18 NA       32  174.</span></span>
 <span><span class="co">#&gt; 2 cyl            -2.88    -3.53     -2.22     0.322 6.11e-10 NA       32  174.</span></span></code></pre></div>
+<p>You can check the help section of the run_linear_models() (by using “?run_linear_models() in R) or the run_linear_models guide under”Learn More” for more examples.</p>
+</div>
+<div class="section level2">
+<h2 id="notes">Notes<a class="anchor" aria-label="anchor" href="#notes"></a>
+</h2>
+<p>Deprecation warning: You may see a warning related to formula.character() when running examples. This originates from a dependency package and does not affect the functionality or results of turtle. The issue is expected to be resolved in a future update of the underlying package.</p>
 </div>
 <div class="section level2">
 <h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
@@ -114,14 +136,28 @@
 <li>Random effects</li>
 </ul>
 </li>
-<li>Returns:
+<li>Returns a named list of model results, each containing:
 <ul>
-<li>Tidy model summary</li>
-<li>Residuals</li>
-<li>Model formula</li>
+<li>
+<code>model</code>: The fitted model object (<code>lm</code> or <code>lmer</code>)</li>
+<li>
+<code>tidy</code>: A tidy summary of model coefficients</li>
+<li>
+<code>residuals</code>: Model residuals</li>
+<li>
+<code>formula</code>: The model formula used</li>
+<li>
+<code>exposure</code>: The exposure variable used</li>
+<li>
+<code>model_name</code>: A unique identifier for the model</li>
 </ul>
 </li>
+<li>If <code>return_grid = TRUE</code>, the full model grid is attached as an attribute</li>
 </ul>
+</div>
+<div class="section level2">
+<h2 id="learn-more">Learn More<a class="anchor" aria-label="anchor" href="#learn-more"></a>
+</h2>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
