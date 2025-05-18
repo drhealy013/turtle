@@ -66,9 +66,9 @@ fit_model_safely <- function(formula, data, model_fun) {
   warnings <- character()
   messages <- character()
 
-  safe_fit <- purrr::safely(function(formula, data) {
+  handler <- function(expr) {
     withCallingHandlers(
-      model_fun(formula = formula, data = data),
+      expr,
       warning = function(w) {
         warnings <<- c(warnings, conditionMessage(w))
         invokeRestart("muffleWarning")
@@ -78,6 +78,10 @@ fit_model_safely <- function(formula, data, model_fun) {
         invokeRestart("muffleMessage")
       }
     )
+  }
+
+  safe_fit <- purrr::safely(function(formula, data) {
+    handler(model_fun(formula = formula, data = data))
   })
 
   result <- safe_fit(formula, data)

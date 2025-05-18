@@ -19,3 +19,29 @@ test_that("fit_model_safely returns expected structure and fits model correctly"
   expect_type(result$warnings, "character")
   expect_type(result$messages, "character")
 })
+
+test_that("fit_model_safely captures a manually triggered warning", {
+  noisy_model <- function(formula, data) {
+    warning("This is a test warning")
+    lm(formula, data)
+  }
+
+  data <- data.frame(y = rnorm(10), x = rnorm(10))
+  result <- fit_model_safely(y ~ x, data = data, model_fun = noisy_model)
+
+  print(result$warnings)  # optional: for debugging
+  expect_true(length(result$warnings) > 0)
+  expect_match(result$warnings[[1]], "test warning")
+})
+
+test_that("fit_model_safely captures messages", {
+  model_fun_with_message <- function(formula, data) {
+    message("This is a test message")
+    lm(formula, data)
+  }
+
+  result <- fit_model_safely(mpg ~ wt, mtcars, model_fun_with_message)
+
+  expect_true(length(result$messages) > 0)
+  expect_match(result$messages[[1]], "test message")
+})

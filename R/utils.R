@@ -46,17 +46,18 @@ generate_assignment_reminder <- function(function_name = "this function") {
 #' @details
 #' This function is intended to be called at the end of user-facing functions. It uses `sys.nframe()` to determine
 #' whether the function was called at the top level (i.e., not assigned to a variable). If so, it prints a message
-#' explaining how to assign the result and how to access key components like `$tidy`.
+#' explaining how to assign the result and how to access key components like `$tidy`. An internal "force" parameter was
+#' added to make it testable to ensure long-term maintainability.
 #'
 #' @return No return value. This function is called for its side effect: printing a message to the console.
 #'
 #' @keywords internal
 #' @noRd
 
-print_assignment_reminder <- function(function_name = "this function") {
-  if (identical(sys.nframe(), 1L)) {
-    message_lines <- generate_assignment_reminder(function_name)
-    for (line in message_lines) message(line)
+print_assignment_reminder <- function(..., .test_force = FALSE) {
+  stopifnot(is.logical(.test_force), length(.test_force) == 1)
+  if (isTRUE(.test_force) || sys.nframe() == 1L) {
+    message("Reminder: If you want to access the different outputs of your model later, don't forget to assign the result to a variable!")
   }
 }
 

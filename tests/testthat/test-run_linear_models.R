@@ -1,4 +1,5 @@
 library(testthat)
+library(mockery)
 data <- mtcars
 data$cyl <- as.factor(data$cyl)
 
@@ -97,19 +98,19 @@ test_that("run_linear_models works with named vectors", {
   expect_true("hp&cyl" %in% names(result))
 })
 
-test_that("error is thrown if lmerTest is missing and p_values = TRUE", {
-  skip_if("lmerTest" %in% rownames(installed.packages()),
-          message = "lmerTest is installed; skipping test.")
+test_that("throws error if lmerTest is not installed and p_values = TRUE", {
+  mock_require <- mock(FALSE)
+  stub(run_linear_models, "requireNamespace", mock_require)
 
   expect_error(
     run_linear_models(
-      data = data,
+      data = mtcars,
       outcome = "mpg",
-      exposure = "hp",
-      random_effects = "(1 | cyl)",
+      exposure = "wt",
+      random_effects = "cyl",  # triggers mixed model
       p_values = TRUE
     ),
-    "The 'lmerTest' package is required"
+    "lmerTest"
   )
 })
 
@@ -206,4 +207,22 @@ test_that("model names are unique and descriptive", {
   model_names <- names(result)
   expect_equal(length(model_names), length(unique(model_names)))
   expect_true(all(grepl("&", model_names)))
+})
+
+test_that("non-character outcome is coerced to character", {
+  result <- run_linear_models(
+    data = mtcars,
+    outcome = quote(mpg),
+    exposure = "wt"
+  )
+  expect_s3_class(result, "run_model_result_list")
+})
+
+test_that("non-character exposure is coerced to character", {
+  result <- run_linear_models(
+    data = mtcars,
+    outcome = "mpg",
+    exposure = quote(wt)
+  )
+  expect_s3_class(result, "run_model_result_list")
 })
