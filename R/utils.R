@@ -54,10 +54,10 @@ generate_assignment_reminder <- function(function_name = "this function") {
 #' @keywords internal
 #' @noRd
 
-print_assignment_reminder <- function(..., .test_force = FALSE) {
+print_assignment_reminder <- function(function_name = "this function", ..., .test_force = FALSE) {
   stopifnot(is.logical(.test_force), length(.test_force) == 1)
   if (isTRUE(.test_force) || sys.nframe() == 1L) {
-    message("Reminder: If you want to access the different outputs of your model later, don't forget to assign the result to a variable!")
+    message(generate_assignment_reminder(function_name), appendLF = TRUE)
   }
 }
 

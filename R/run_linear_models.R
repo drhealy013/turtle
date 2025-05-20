@@ -210,7 +210,7 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
 
   names(results) <- purrr::map_chr(results, "model_name")
   results <- structure(results, class = "run_model_result_list")
-  if (verbose) print_assignment_reminder("run_linear_models")
+  if (verbose) print_assignment_reminder(.test_force = verbose)
   if (return_grid) attr(results, "model_grid") <- model_grid
   return(results)
 }

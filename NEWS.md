@@ -68,3 +68,9 @@
 ## Created model_helpers
 
 *make_model_name and detect_model_notes to help clean up run_linear_models code.
+
+# turtle 0.1.8
+
+## Bug fix
+
+*Updating S3 print methods and helper print functions.

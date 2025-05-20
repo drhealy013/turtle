@@ -1,5 +1,3 @@
-library(testthat)
-
 test_that("tidy_model_output returns a tibble with expected columns", {
   model <- lm(mpg ~ wt, data = mtcars)
   result <- tidy_model_output(

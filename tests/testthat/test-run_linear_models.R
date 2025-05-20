@@ -1,4 +1,3 @@
-library(testthat)
 library(mockery)
 data <- mtcars
 data$cyl <- as.factor(data$cyl)
@@ -225,4 +224,34 @@ test_that("non-character exposure is coerced to character", {
     exposure = quote(wt)
   )
   expect_s3_class(result, "run_model_result_list")
+})
+
+test_that("assignment reminder and preview only print when not assigned", {
+  output <- withr::with_options(
+    list(cli.default_output = "message"),
+    {
+      messages <- capture_messages({
+        result <- capture.output(
+          run_linear_models(
+            data = data,
+            outcome = "mpg",
+            exposure = "wt",
+            verbose = TRUE,
+            .internal = list(.test_force = TRUE)
+          )
+        )
+        output <- capture.output(print(result))
+        output
+      })
+      c(messages, output)
+    }
+  )
+
+  output <- cli::ansi_strip(output)
+
+  cat("\n--- Captured Output ---\n", paste(output, collapse = "\n"), "\n------------------------")
+
+  expect_true(any(stringr::str_detect(output, stringr::regex("assign.*result", ignore_case = TRUE))))
+  expect_true(any(stringr::str_detect(output, stringr::regex("results\\s*<-\\s*run_linear_models\\(", ignore_case = TRUE))))
+  expect_true(any(stringr::str_detect(output, stringr::regex("Model Preview", ignore_case = TRUE))))
 })

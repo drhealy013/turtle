@@ -1,7 +1,4 @@
-library(testthat)
-
 test_that("print.run_model_result prints expected output", {
-  # Create a mock run_model_result object
   model <- lm(mpg ~ wt, data = mtcars)
   result <- list(
     model = model,
@@ -12,10 +9,8 @@ test_that("print.run_model_result prints expected output", {
   )
   class(result) <- "run_model_result"
 
-  # Capture printed output
   output <- capture.output(print(result))
 
-  # Check that key sections are present
   expect_true(any(grepl("Model Formula:", output)))
   expect_true(any(grepl("Tidy Results:", output)))
   expect_true(any(grepl("Residuals \\(first 10 shown\\):", output)))

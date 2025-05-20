@@ -1,5 +1,3 @@
-library(testthat)
-
 test_that("check_version_warning prints a message when current version is older", {
   expect_message(
     check_version_warning("0.1.0", latest_version = "0.1.6"),

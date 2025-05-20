@@ -1,5 +1,3 @@
-library(testthat)
-
 test_that("build_formula constructs correct formulas", {
 
   # No effect modifier or sensitivity covariates

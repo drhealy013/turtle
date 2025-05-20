@@ -1,5 +1,3 @@
-library(testthat)
-
 test_that("detect_model_notes detects dropped terms in lm", {
   data <- mtcars
   data$qsec_dup <- data$qsec

@@ -1,5 +1,3 @@
-library(testthat)
-
 test_that("make_model_name constructs names correctly", {
   # Basic outcome and exposure
   expect_equal(make_model_name("y", "x"), "y&x")

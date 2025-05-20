@@ -18,9 +18,9 @@ test_that("print_assignment_reminder does not print when called inside another f
   expect_length(output, 0)
 })
 
-test_that("print_assignment_reminder prints message when forced", {
+test_that("print_assignment_reminder prints full message when forced", {
   expect_message(
-    print_assignment_reminder(.test_force = TRUE),
-    "Reminder: If you want to access the different outputs of your model later, don't forget to assign the result to a variable!"
+    print_assignment_reminder("my_function", .test_force = TRUE),
+    "Note: You ran `my_function` without assigning the result"
   )
 })

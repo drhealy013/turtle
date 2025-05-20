@@ -38,6 +38,11 @@ A list containing model results. If multiple outcomes or exposures are provided,
 }
 \description{
 This function fits linear (`lm`) or mixed effects (`lmer`) models across combinations of outcomes, exposures, effect modifiers, and sensitivity covariates. It supports interaction terms, random effects, and returns a tidy summary of each model. It is designed to simplify model fitting across many variable combinations with consistent covariates and random effects.
+
+For internal testing purposes, a hidden `.test_force` argument can be passed via `...` to simulate interactive, top-level calls. This enables reliable testing of preview and reminder output without relying on `interactive()` or `sys.nframe()`.
+}
+\note{
+For internal testing purposes, a `.test_force` flag can be passed via the `.internal` argument (as a named list) to simulate interactive, top-level calls. This is used only in tests and should not be used in production.
 }
 \examples{
 # Examples
@@ -102,3 +107,4 @@ error_output <- run_linear_models(data = data,
 error_output$tidy
 
 }
+\keyword{internal}
