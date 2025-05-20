@@ -99,12 +99,12 @@ print.assignment_reminder <- function(x, ...) {
   )
 
   if (length(x) == 0) {
-    cat("\n(No models to preview — result list is empty.)\n")
+    cat("\n(No models to preview - result list is empty.)\n")
   } else {
     tryCatch({
       print_model_preview(x)
     }, error = function(e) {
-      cat("\n⚠️ Unable to print model preview due to an error:\n")
+      cat("\n[!] Unable to print model preview due to an error:\n")
       message(conditionMessage(e))
     })
   }

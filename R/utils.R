@@ -63,8 +63,8 @@ generate_assignment_reminder <- function(function_name = "this function", test_m
   }
 
   c(
-    cli::rule(left = cli::style_bold(cli::col_red("🔸 NOTE"))),
-    cli::col_yellow(paste0("You ran `", function_name, "()` without assigning the result.")),
+    cli::rule(left = cli::style_bold(cli::col_red("NOTE"))),
+    paste0("You ran `", function_name, "()` without assigning the result."),
     "",
     "To keep your model results for later use, assign the output like this:",
     cli::col_green(paste0("  results <- ", function_name, "(...)")),
