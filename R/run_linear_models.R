@@ -4,6 +4,8 @@
 #' @description
 #' This function fits linear (`lm`) or mixed effects (`lmer`) models across combinations of outcomes, exposures, effect modifiers, and sensitivity covariates. It supports interaction terms, random effects, and returns a tidy summary of each model. It is designed to simplify model fitting across many variable combinations with consistent covariates and random effects.
 #'
+#' For internal testing purposes, a hidden `.test_force` argument can be passed via `...` to simulate interactive, top-level calls. This enables reliable testing of preview and reminder output without relying on `interactive()` or `sys.nframe()`.
+#'
 #' @param data A data frame containing the variables used in the model.
 #' @param outcome A character vector of outcome variable names.
 #' @param exposure A character vector of exposure variable names.
@@ -98,13 +100,25 @@
 #' @importFrom purrr safely pmap
 #' @importFrom tidyr expand_grid
 #' @importFrom progress progress_bar
+#'
+#' @keywords internal
+#' @note For internal testing purposes, a `.test_force` flag can be passed via the `.internal` argument (as a named list) to simulate interactive, top-level calls. This is used only in tests and should not be used in production.
 
 utils::globalVariables(c("term", "estimate", "conf.low", "conf.high", "std.error", "p.value"))
 
-run_linear_models <- function(data, outcome, exposure, covariates = NULL,
-                              effect_modifier = NULL, sensitivity_cov = NULL,
-                              random_effects = NULL, p_values = TRUE,
-                              verbose = TRUE, return_grid = FALSE) {
+run_linear_models <- function(data,
+                              outcome,
+                              exposure,
+                              covariates = NULL,
+                              effect_modifier = NULL,
+                              sensitivity_cov = NULL,
+                              random_effects = NULL,
+                              p_values = TRUE,
+                              verbose = TRUE,
+                              return_grid = FALSE,
+                              .internal = list()) {
+
+  .test_force <- !identical(.internal$.test_force %||% getOption("turtle.test_force", NULL), FALSE)
 
   current_version <- utils::packageVersion("turtle")
   check_version_warning(current_version)
@@ -112,6 +126,9 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
   if (p_values && !requireNamespace("lmerTest", quietly = TRUE)) {
     stop("The 'lmerTest' package is required to compute p-values for mixed models. Please install it with install.packages('lmerTest').")
   }
+
+  outcome <- as.character(outcome)
+  exposure <- as.character(exposure)
 
   run_single_model <- function(outcome, exposure, effect_modifier, sensitivity_cov) {
     if (verbose) {
@@ -122,17 +139,19 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
     }
 
     full_formula <- build_formula(
-      outcome = as.character(outcome)[1],
-      exposure = as.character(exposure)[1],
+      outcome = outcome,
+      exposure = exposure,
       covariates = covariates,
       effect_modifier = effect_modifier,
       sensitivity_cov = sensitivity_cov,
       random_effects = random_effects
     )
-    model_type <- if (!is.null(random_effects)) "lmer" else "lm"
-    model_fun <- switch(model_type,
-                        "lm" = stats::lm,
-                        "lmer" = if (p_values) lmerTest::lmer else lme4::lmer)
+
+    model_fun <- if (!is.null(random_effects)) {
+      if (p_values) lmerTest::lmer else lme4::lmer
+    } else {
+      stats::lm
+    }
 
     fit_result <- fit_model_safely(full_formula, data, model_fun)
     result <- fit_result$result
@@ -144,17 +163,28 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
     if (!is.null(result$error)) {
       if (verbose) message("Model failed for formula: ", formula_str, "\nError: ", result$error$message)
       tidy <- tibble::tibble(
-        term = NA, estimate = NA, conf.low = NA, conf.high = NA,
-        p.value = NA, note = result$error$message, formula = formula_str
+        term = NA_character_,
+        estimate = NA_real_,
+        conf.low = NA_real_,
+        conf.high = NA_real_,
+        p.value = NA_real_,
+        note = paste("Model failed:", result$error$message),
+        formula = formula_str
       )
-      return(list(tidy = tidy, formula = full_formula, residuals = NA))
+      return(list(
+        model = NULL,
+        tidy = tidy,
+        formula = full_formula,
+        residuals = NA,
+        exposure = exposure
+      ))
     }
 
     model <- result$result
     tidy <- tidy_model_output(model, warnings, messages, effect_modifier, sensitivity_cov)
     tidy$formula <- formula_str
     tidy$note <- detect_model_notes(model)
-    residuals <- broom::augment(model)$.resid
+    residuals <- residuals(model)
 
     list(
       model = model,
@@ -164,9 +194,6 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
       exposure = exposure
     )
   }
-
-  if (!is.character(outcome)) outcome <- as.character(outcome)
-  if (!is.character(exposure)) exposure <- as.character(exposure)
 
   model_grid <- tidyr::expand_grid(
     outcome = outcome,
@@ -209,8 +236,10 @@ run_linear_models <- function(data, outcome, exposure, covariates = NULL,
   })
 
   names(results) <- purrr::map_chr(results, "model_name")
-  results <- structure(results, class = "run_model_result_list")
-  if (verbose) print_assignment_reminder(.test_force = verbose)
-  if (return_grid) attr(results, "model_grid") <- model_grid
-  return(results)
+  class(results) <- c("assignment_reminder", "run_model_result_list")
+  attr(results, "function_name") <- "run_linear_models"
+  attr(results, ".test_force") <- .test_force
+  attr(results, "model_grid") <- model_grid
+
+  results
 }

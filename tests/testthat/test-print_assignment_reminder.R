@@ -1,26 +1,26 @@
-library(testthat)
-library(callr)
-library(here)
-
-test_that("generate_assignment_reminder returns expected message", {
-  msg <- generate_assignment_reminder("my_function")
-
-  expect_true(any(grepl("Note: You ran `my_function` without assigning the result", msg)))
-  expect_true(any(grepl("results <- my_function\\(\\.\\.\\.\\)", msg)))
-  expect_true(any(grepl("results\\$tidy", msg)))
-})
-
-test_that("print_assignment_reminder does not print when called inside another function", {
-  wrapper <- function() {
-    capture.output(print_assignment_reminder("wrapped_function"))
-  }
-  output <- wrapper()
-  expect_length(output, 0)
-})
-
 test_that("print_assignment_reminder prints full message when forced", {
-  expect_message(
-    print_assignment_reminder("my_function", .test_force = TRUE),
-    "Note: You ran `my_function` without assigning the result"
+  output <- capture.output(print_assignment_reminder("my_function", .test_force = TRUE))
+  output <- cli::ansi_strip(output)
+
+  expect_true(any(grepl("NOTE", output)))
+  expect_true(any(grepl("without assigning the result", output)))
+  expect_true(any(grepl("results\\s*<-\\s*my_function\\(", output)))
+})
+
+test_that("print_assignment_reminder infers function name when not provided", {
+  output <- withr::with_options(
+    list(cli.default_output = "message"),
+    capture.output({
+      wrapper <- function() {
+        print_assignment_reminder(.test_force = TRUE)
+      }
+      wrapper()
+    })
   )
+  output <- cli::ansi_strip(output)
+
+  cat("\n--- Captured Output ---\n", paste(output, collapse = "\n"), "\n------------------------")
+
+  expect_true(any(grepl("You ran `wrapper\\(\\)` without assigning the result", output)))
+  expect_true(any(grepl("results\\s*<-\\s*wrapper\\(", output)))
 })
