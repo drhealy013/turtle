@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">turtle</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -119,6 +119,12 @@
 <span class="r-in"><span>                                  outcome <span class="op">=</span> <span class="st">"mpg"</span>,</span></span>
 <span class="r-in"><span>                                  exposure <span class="op">=</span> <span class="st">"cyl"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running model with outcome = mpg, exposure = cyl</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: You ran `this function` without assigning the result to a variable.To access model results later, assign the output like this:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results &lt;- this function(...)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Then you can access the tidy results with:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results$tidy # for a single model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results[["outcome&amp;exposure"]]$tidy # for multiple models</span>
 <span class="r-in"><span><span class="va">model_output</span><span class="op">$</span><span class="va">tidy</span>  <span class="co"># access tidy results</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-in"><span></span></span>
@@ -130,6 +136,12 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running model with outcome = mpg, exposure = wt</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running model with outcome = hp, exposure = cyl</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running model with outcome = hp, exposure = wt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: You ran `this function` without assigning the result to a variable.To access model results later, assign the output like this:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results &lt;- this function(...)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Then you can access the tidy results with:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results$tidy # for a single model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results[["outcome&amp;exposure"]]$tidy # for multiple models</span>
 <span class="r-in"><span><span class="va">multi_output</span><span class="op">[[</span><span class="st">"mpg&amp;cyl"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">tidy</span>  <span class="co"># access a specific model's tidy results</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 11</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   term  estimate conf.low conf.high std.error  p.value error n_obs   BIC formula</span>
@@ -148,6 +160,12 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running model with outcome = mpg, exposure = wt</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running model with outcome = hp, exposure = cyl</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running model with outcome = hp, exposure = wt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: You ran `this function` without assigning the result to a variable.To access model results later, assign the output like this:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results &lt;- this function(...)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Then you can access the tidy results with:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results$tidy # for a single model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results[["outcome&amp;exposure"]]$tidy # for multiple models</span>
 <span class="r-in"><span><span class="va">named_output</span><span class="op">[[</span><span class="st">"hp&amp;wt"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">tidy</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 11</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   term   estimate conf.low conf.high std.error p.value error n_obs   BIC formula</span>
@@ -162,6 +180,12 @@
 <span class="r-in"><span>                                  exposure <span class="op">=</span> <span class="st">"cyl"</span>,</span></span>
 <span class="r-in"><span>                                  covariates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wt"</span>, <span class="st">"hp"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running model with outcome = mpg, exposure = cyl</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: You ran `this function` without assigning the result to a variable.To access model results later, assign the output like this:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results &lt;- this function(...)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Then you can access the tidy results with:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results$tidy # for a single model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results[["outcome&amp;exposure"]]$tidy # for multiple models</span>
 <span class="r-in"><span><span class="va">covar_output</span><span class="op">$</span><span class="va">tidy</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-in"><span></span></span>
@@ -173,6 +197,12 @@
 <span class="r-in"><span>                                        exposure <span class="op">=</span> <span class="st">"cyl"</span>,</span></span>
 <span class="r-in"><span>                                        covariates <span class="op">=</span> <span class="va">covars</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running model with outcome = mpg, exposure = cyl</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: You ran `this function` without assigning the result to a variable.To access model results later, assign the output like this:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results &lt;- this function(...)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Then you can access the tidy results with:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results$tidy # for a single model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results[["outcome&amp;exposure"]]$tidy # for multiple models</span>
 <span class="r-in"><span><span class="va">named_covar_output</span><span class="op">$</span><span class="va">tidy</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-in"><span></span></span>
@@ -182,6 +212,12 @@
 <span class="r-in"><span>                                        exposure <span class="op">=</span> <span class="st">"cyl"</span>,</span></span>
 <span class="r-in"><span>                                        effect_modifier <span class="op">=</span> <span class="st">"am"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running model with outcome = mpg, exposure = cyl, effect_modifier = am</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: You ran `this function` without assigning the result to a variable.To access model results later, assign the output like this:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results &lt;- this function(...)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Then you can access the tidy results with:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results$tidy # for a single model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results[["outcome&amp;exposure"]]$tidy # for multiple models</span>
 <span class="r-in"><span><span class="va">interaction_output</span><span class="op">$</span><span class="va">tidy</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-in"><span></span></span>
@@ -192,6 +228,12 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running model with outcome = mpg, exposure = not_a_column</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Model failed for formula: mpg ~ not_a_column</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Error: object 'not_a_column' not found</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: You ran `this function` without assigning the result to a variable.To access model results later, assign the output like this:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results &lt;- this function(...)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Then you can access the tidy results with:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results$tidy # for a single model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  results[["outcome&amp;exposure"]]$tidy # for multiple models</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">error_output</span><span class="op">$</span><span class="va">tidy</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
