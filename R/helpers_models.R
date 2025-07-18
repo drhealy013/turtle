@@ -205,4 +205,3 @@ detect_model_notes <- function(model) {
   if (length(notes) == 0) return(NA_character_)
   paste(notes, collapse = " | ")
 }
-

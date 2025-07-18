@@ -74,3 +74,12 @@
 ## Bug fix
 
 *Updating S3 print methods and helper print functions.
+
+# turtle 0.1.9
+
+## Created new functions to proceed with model outputs
+
+* Created `save_model_output` function.
+* Created `extract_model_summaries` function.
+* Created `run_model_diagnostics` function.
+* Updated utility function to make version checking dynamic.

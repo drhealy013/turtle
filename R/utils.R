@@ -1,31 +1,42 @@
-#' Check for Package Version Warning
-#'
-#' @name check_version_warning
-#'
+#' @title Check for Newer Version of turtle
 #' @description
-#' This utility function checks whether the current version of the package is older than a specified latest version.
-#' If so, it prints a message encouraging the user to update.
+#' Checks whether the installed version of the `turtle` package is older than the latest version available on GitHub.
+#' If so, it suggests updating the package.
 #'
-#' @param current_version The current version of the package, typically from `packageVersion("yourpkg")`.
-#' @param latest_version A character string indicating the latest available version (default is `"0.1.5"`).
+#' @param repo A character string specifying the GitHub repository in the format `"username/repo"`. Default is `"drhealy013/turtle"`.
+#' @return A message if an update is available; otherwise, returns invisibly.
+#' @export
 #'
-#' @details
-#' This function is useful for notifying users when they may be using an outdated version of the package.
-#' It is intended to be called at the beginning of user-facing functions.
+#' @examples
+#' \dontrun{
+#' check_version_warning()
+#' }
 #'
-#' @return No return value. Called for its side effect: printing a message to the console.
-#'
-#' @keywords internal
-#' @noRd
+#' @importFrom utils packageVersion compareVersion
 
-check_version_warning <- function(current_version, latest_version = "0.1.8") {
-  current_version <- as.character(current_version)
-  latest_version <- as.character(latest_version)
+check_version_warning <- function(repo = "drhealy013/turtle") {
+  current_version <- tryCatch(
+    as.character(utils::packageVersion("turtle")),
+    error = function(e) NA_character_
+  )
+
+  latest_version <- tryCatch({
+    url <- paste0("https://raw.githubusercontent.com/", repo, "/main/DESCRIPTION")
+    desc <- read.dcf(url(url), fields = "Version")[1]
+  }, error = function(e) NA_character_)
+
+  if (is.na(current_version) || is.na(latest_version)) {
+    warning("Could not determine version information.")
+    return(invisible(NULL))
+  }
 
   if (utils::compareVersion(current_version, latest_version) < 0) {
-    message("A newer version of turtle is available (", latest_version,
-            "). Please reinstall from GitHub to get the latest updates.")
+    message("📦 A newer version of turtle is available (", latest_version, ").\n",
+            "⬇️  Please reinstall from GitHub:\n",
+            "    remotes::install_github(\"", repo, "\")")
   }
+
+  invisible(NULL)
 }
 
 #' Generate Assignment Reminder Message

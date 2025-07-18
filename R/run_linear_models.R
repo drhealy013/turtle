@@ -120,8 +120,9 @@ run_linear_models <- function(data,
 
   .test_force <- !identical(.internal$.test_force %||% getOption("turtle.test_force", NULL), FALSE)
 
-  current_version <- utils::packageVersion("turtle")
-  check_version_warning(current_version)
+  if ((interactive() || .test_force)) {
+    check_version_warning()
+  }
 
   if (p_values && !requireNamespace("lmerTest", quietly = TRUE)) {
     stop("The 'lmerTest' package is required to compute p-values for mixed models. Please install it with install.packages('lmerTest').")
