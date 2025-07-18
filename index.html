@@ -58,6 +58,12 @@
 <ul>
 <li>
 <code><a href="reference/run_linear_models.html">run_linear_models()</a></code>: Fit linear or mixed models (can be run for a single model or many models).</li>
+<li>
+<code><a href="reference/save_model_output.html">save_model_output()</a></code>: Save models and summaries (e.g., from run_linear_models) to your computer.</li>
+<li>
+<code><a href="reference/extract_model_summaries.html">extract_model_summaries()</a></code>: Extract model results from <code><a href="reference/run_linear_models.html">run_linear_models()</a></code>.</li>
+<li>
+<code><a href="reference/run_model_diagnostics.html">run_model_diagnostics()</a></code>: Run and plot diagnostics for your models.</li>
 </ul>
 </div>
 <div class="section level2">
@@ -82,14 +88,14 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/drhealy013/turtle" class="external-link">turtle</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Example: Does car weight affect fuel efficiency?</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/run_linear_models.html">run_linear_models</a></span><span class="op">(</span></span>
+<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/run_linear_models.html">run_linear_models</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">mtcars</span>,</span>
 <span>  outcome <span class="op">=</span> <span class="st">"mpg"</span>,   <span class="co"># miles per gallon</span></span>
 <span>  exposure <span class="op">=</span> <span class="st">"wt"</span>    <span class="co"># weight of the car</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># View the results</span></span>
-<span><span class="va">result</span><span class="op">$</span><span class="va">tidy</span></span>
+<span><span class="va">output</span><span class="op">$</span><span class="va">tidy</span></span>
 <span><span class="co">#&gt; # A tibble: 2 × 9</span></span>
 <span><span class="co">#&gt;   term        estimate conf.low conf.high std.error  p.value error n_obs   BIC</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;lgl&gt; &lt;int&gt; &lt;dbl&gt;</span></span>
@@ -102,26 +108,54 @@
 <span><span class="va">outcomes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mpg"</span>, <span class="st">"disp"</span><span class="op">)</span></span>
 <span><span class="va">exposures</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cyl"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/run_linear_models.html">run_linear_models</a></span><span class="op">(</span></span>
+<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/run_linear_models.html">run_linear_models</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">mtcars</span>,</span>
 <span>  outcome <span class="op">=</span> <span class="va">outcomes</span>,</span>
 <span>  exposure <span class="op">=</span> <span class="va">exposures</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in formula.character(object, env = baseenv()): Using formula(x) is deprecated when x is a character vector of length &gt; 1.</span></span>
-<span><span class="co">#&gt;   Consider formula(paste(x, collapse = " ")) instead.</span></span>
 <span></span>
-<span><span class="va">result</span><span class="op">$</span><span class="va">tidy</span></span>
+<span><span class="va">output</span><span class="op">$</span><span class="va">tidy</span></span>
 <span><span class="co">#&gt; # A tibble: 2 × 9</span></span>
 <span><span class="co">#&gt;   term        estimate conf.low conf.high std.error  p.value error n_obs   BIC</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;lgl&gt; &lt;int&gt; &lt;dbl&gt;</span></span>
 <span><span class="co">#&gt; 1 (Intercept)    37.9     33.6      42.1      2.07  8.37e-18 NA       32  174.</span></span>
 <span><span class="co">#&gt; 2 cyl            -2.88    -3.53     -2.22     0.322 6.11e-10 NA       32  174.</span></span></code></pre></div>
 <p>You can check the help section of the run_linear_models() (by using “?run_linear_models() in R) or the run_linear_models guide under”Learn More” for more examples.</p>
-</div>
-<div class="section level2">
-<h2 id="notes">Notes<a class="anchor" aria-label="anchor" href="#notes"></a>
-</h2>
-<p>Deprecation warning: You may see a warning related to formula.character() when running examples. This originates from a dependency package and does not affect the functionality or results of turtle. The issue is expected to be resolved in a future update of the underlying package.</p>
+<p>After running your models, you can tidy up the output to make it easier to see all of the results in one place. To do this, you can use the <code><a href="reference/extract_model_summaries.html">extract_model_summaries()</a></code> function. This function pulls together some key information from your models, such as estimates (effect size), confidence intervals, and p-values, into one tidy table that’s easy to read and share.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/extract_model_summaries.html">extract_model_summaries</a></span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span></span></code></pre></div>
+<p>You can do further work on this table if you want. For example, you can filter the results to only show outcomes or exposures of interest. For example:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">results_cyl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">exposure</span> <span class="op">==</span> <span class="st">"cyl"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">results_mpg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">outcome</span> <span class="op">==</span> <span class="st">"mpg"</span><span class="op">)</span></span></code></pre></div>
+<p>In “results_cyl”, we have filtered for the exposure “cyl”–in this instance, we would only see the results that are specifically related to “cyl” exposure.</p>
+<p>In “results_mpg”, we have filtered for the outcome “mpg”–in this instance, we would only the results that are specifically related to the “mpg” outcome.</p>
+<p>If you have run lots of models, you might want to adjust the p-values for multiple testing to reduce the chance of false positives. You can do that like this:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/extract_model_summaries.html">extract_model_summaries</a></span><span class="op">(</span><span class="va">results</span>, p_adjust_method <span class="op">=</span> <span class="st">"fdr"</span><span class="op">)</span></span></code></pre></div>
+<p>This uses a method called False Discovery Rate (FDR) to adjust the p-values. Other options include “bonferroni”, “holm”, and more.</p>
+<p>At any stage, you can also save your models to your computer. This can be a good idea as it allows you to come back to the output/results at a later date without having to re-run your analysis.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/save_model_output.html">save_model_output</a></span><span class="op">(</span></span>
+<span>  model_output <span class="op">=</span> <span class="va">output</span>,</span>
+<span>  file_path <span class="op">=</span> <span class="st">"my_model_results"</span><span class="op">)</span></span></code></pre></div>
+<p>This will save your model output. By default, it includes everything such as the models, the summaries, the formulas and more. The file will be saved using the name provided in “file_path” while also automatically adding the current date to the file name as a timestamp. This function also prevents you accidentally overwriting the file unless you specifically state it to.</p>
+<p>If you only want to save the fitted models (for example, to use them later for diagnostics), you can do this:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/save_model_output.html">save_model_output</a></span><span class="op">(</span></span>
+<span>  model_output <span class="op">=</span> <span class="va">output</span>,</span>
+<span>  file_path <span class="op">=</span> <span class="st">"just_models"</span>,</span>
+<span>  models_only <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>After saving the file, you’ll receive a message on your R console telling you: - Where the file was saved. - What was included in the saved file. - Suggestions on next steps.</p>
+<p>To load your saved file later, just use something like this (with the correct file name and date):</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="st">"my_model_results_20250718.RData"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
