@@ -16,7 +16,7 @@
 #' @param pdf_path String. File path for saving the PDF if `save_pdf = TRUE`. Defaults to `"model_diagnostics.pdf"`.
 #' @param index_labels Optional character vector of labels for grouping models in the index page.
 #' @param chunk_size Integer. Number of models per chunk for parallel processing. Defaults to `100`.
-#' @param readme_url String. URL to the online guide or README for further explanation. Defaults to `"https://yourproject.org/readme"`.
+#' @param readme_url String. URL to the online guide or README for further explanation. Defaults to `"https://github.com/drhealy013/turtle"`.
 #'
 #' @return An object of class `"model_diagnostics_result"` containing:
 #' \describe{
@@ -41,8 +41,6 @@
 #' model <- lm(mpg ~ wt + hp, data = mtcars)
 #' run_model_diagnostics(model, diagnostics = c("normality", "outliers"))
 #' }
-#'
-#' @seealso \code{\link{plot_model_diagnostics}}, \code{\link{generate_summary_page}}, \code{\link{generate_index_page}}
 #'
 #' @export
 #'
@@ -72,28 +70,24 @@ run_model_diagnostics <- function(
     chunk_size = 100,
     readme_url = "https://github.com/drhealy013/turtle"
 ) {
-  # Handle single model input
+
   if (inherits(models, "lm") || inherits(models, "lmerMod")) {
     models <- list(model1 = models)
   }
 
-  # Validate input
   if (!is.list(models) || is.null(names(models))) {
     stop("`models` must be a named list or a single model object.")
   }
 
-  # Parallel safety
   if (parallel) {
     oplan <- future::plan()
     on.exit(future::plan(oplan), add = TRUE)
     future::plan(future::multisession, workers = future::availableCores() - 1)
   }
 
-  # Chunking
   split_into_chunks <- function(lst, size) split(lst, ceiling(seq_along(lst) / size))
   model_chunks <- split_into_chunks(models, chunk_size)
 
-  # Run diagnostics
   run_chunk <- function(chunk) {
     if (parallel) {
       furrr::future_map(names(chunk), ~ plot_model_diagnostics(chunk[[.x]], .x, diagnostics))
@@ -105,13 +99,11 @@ run_model_diagnostics <- function(
   diagnostic_results <- purrr::flatten(purrr::map(model_chunks, run_chunk))
   diagnostic_plots <- purrr::map(diagnostic_results, "plot")
 
-  # Count flagged models
   n_flagged <- sum(purrr::map_dbl(diagnostic_results, ~ {
     pct <- .x$percentage_outliers
     if (!is.na(pct) && pct > outlier_threshold) 1 else 0
   }))
 
-  # Save PDF
   if (save_pdf) {
     grDevices::pdf(pdf_path, width = 14, height = 10)
     grid::grid.draw(generate_summary_page(length(models), n_flagged, diagnostics, outlier_threshold, pdf_path, readme_url))

@@ -31,9 +31,9 @@ check_version_warning <- function(repo = "drhealy013/turtle") {
   }
 
   if (utils::compareVersion(current_version, latest_version) < 0) {
-    message("📦 A newer version of turtle is available (", latest_version, ").\n",
-            "⬇️  Please reinstall from GitHub:\n",
-            "    remotes::install_github(\"", repo, "\")")
+    message("A newer version of 'turtle' is available (", latest_version, ").\n",
+            "To update, run:\n",
+            "  remotes::install_github(\"", repo, "\")")
   }
 
   invisible(NULL)

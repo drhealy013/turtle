@@ -3,9 +3,6 @@
 \name{plot_model_diagnostics}
 \alias{plot_model_diagnostics}
 \title{Generate Diagnostic Plots for a Single Model}
-\usage{
-plot_model_diagnostics(model, model_name, diagnostics)
-}
 \arguments{
 \item{model}{A fitted model object of class `lm` or `lmerMod`.}
 

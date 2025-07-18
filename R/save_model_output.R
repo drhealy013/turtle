@@ -41,44 +41,41 @@
 #' @export
 #'
 #' @importFrom cli cli_alert_success cli_alert_warning cli_alert_info cli_text
+#' @importFrom stats lag setNames
+
+utils::globalVariables(c("direction", "effect", "lag"))
 
 save_model_output <- function(model_output,
                               file_path,
                               models_only = FALSE,
                               verbose = TRUE,
                               overwrite = FALSE) {
-  # Normalize single model input
   if (!is.list(model_output) || inherits(model_output, "lm") || inherits(model_output, "lmerMod")) {
     model_output <- list(model1 = model_output)
     if (verbose) {
-      cli::cli_alert_info("You provided a single model. It’s been saved as part of a list so everything works smoothly.")
+      cli::cli_alert_info("You provided a single model. It has been saved as part of a list so everything works smoothly.")
     }
   }
 
-  # Allow generic lists, warn if not from run_linear_models()
   if (!inherits(model_output, "run_model_result_list")) {
     if (verbose) {
       cli::cli_alert_warning("The object is not from run_linear_models(). Proceeding with a generic list.")
     }
   }
 
-  # Ensure .RData extension
   if (!grepl("\\.RData$", file_path)) {
     file_path <- paste0(file_path, ".RData")
   }
 
-  # Add date-based timestamp if not already present
   if (!grepl("\\d{8}", file_path)) {
     timestamp <- format(Sys.Date(), "%Y%m%d")
     file_path <- sub("(\\.RData)$", paste0("_", timestamp, "\\1"), file_path)
   }
 
-  # Overwrite protection
   if (file.exists(file_path) && !overwrite) {
-    stop("❌ File already exists. Use `overwrite = TRUE` to overwrite.")
+    stop("File already exists. Use `overwrite = TRUE` to overwrite.")
   }
 
-  # Select object to save
   object_to_save <- if (models_only) {
     setNames(
       lapply(model_output, `[[`, "model"),
@@ -88,19 +85,17 @@ save_model_output <- function(model_output,
     model_output
   }
 
-  # Save the object
   save(object_to_save, file = file_path)
 
-  # Verbose output
   if (verbose) {
     cli::cli_alert_success("Your model output has been saved successfully!")
-    cli::cli_text("📁 File location: {.file {file_path}}")
+    cli::cli_text("File location: {.file {file_path}}")
 
-    cli::cli_text("\n🧾 Summary of what you just did:")
+    cli::cli_text("\nSummary of what you just did:")
     cli::cli_text("- You saved {length(model_output)} model{if (length(model_output) > 1) 's' else ''}.")
     cli::cli_text("- You chose to {if (models_only) 'save only the fitted model objects (for reuse or diagnostics).' else 'save the full output, including summaries, residuals, and formulas.'}")
 
-    cli::cli_text("\n📌 Suggested next steps:")
+    cli::cli_text("\nSuggested next steps:")
     cli::cli_text("1. Load your saved output later using: `load(\"{file_path}\")`")
     cli::cli_text("2. Inspect model results (e.g., estimates, confidence intervals)")
     cli::cli_text("3. Run diagnostics (e.g., residual plots, influence checks)")

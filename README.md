@@ -20,7 +20,12 @@ types, including epidemiological, ecological, and experimental datasets.
 The core functions include:
 
 - `run_linear_models()`: Fit linear or mixed models (can be run for a
-  single model or many models).
+single model or many models).
+- `save_model_output()`: Save models and summaries (e.g., from
+run_linear_models) to your computer.
+- `extract_model_summaries()`: Extract model results from
+`run_linear_models()`.
+- `run_model_diagnostics()`: Run and plot diagnostics for your models.
 
 ## How to get the package
 
@@ -48,14 +53,14 @@ Here’s a basic example of the `run_linear_models()` using the built-in
 library(turtle)
 
 # Example: Does car weight affect fuel efficiency?
-result <- run_linear_models(
+output <- run_linear_models(
   data = mtcars,
   outcome = "mpg",   # miles per gallon
   exposure = "wt"    # weight of the car
 )
 
 # View the results
-result$tidy
+output$tidy
 #> # A tibble: 2 × 9
 #>   term        estimate conf.low conf.high std.error  p.value error n_obs   BIC
 #>   <chr>          <dbl>    <dbl>     <dbl>     <dbl>    <dbl> <lgl> <int> <dbl>
@@ -73,15 +78,13 @@ library(turtle)
 outcomes <- c("mpg", "disp")
 exposures <- c("cyl")
 
-result <- run_linear_models(
+output <- run_linear_models(
   data = mtcars,
   outcome = outcomes,
   exposure = exposures
 )
-#> Warning in formula.character(object, env = baseenv()): Using formula(x) is deprecated when x is a character vector of length > 1.
-#>   Consider formula(paste(x, collapse = " ")) instead.
 
-result$tidy
+output$tidy
 #> # A tibble: 2 × 9
 #>   term        estimate conf.low conf.high std.error  p.value error n_obs   BIC
 #>   <chr>          <dbl>    <dbl>     <dbl>     <dbl>    <dbl> <lgl> <int> <dbl>
@@ -90,16 +93,86 @@ result$tidy
 ```
 
 You can check the help section of the run_linear_models() (by using
-“?run_linear_models() in R) or the run_linear_models guide under”Learn
+“?run_linear_models() in R) or the run_linear_models guide under ”Learn
 More” for more examples.
 
-## Notes
+After running your models, you can tidy up the output to make it easier to
+see all of the results in one place. To do this, you can use the
+`extract_model_summaries()` function. This function pulls together some key
+information from your models, such as estimates (effect size), confidence intervals,
+and p-values, into one tidy table that's easy to read and share.
 
-Deprecation warning: You may see a warning related to
-formula.character() when running examples. This originates from a
-dependency package and does not affect the functionality or results of
-turtle. The issue is expected to be resolved in a future update of the
-underlying package.
+```r
+results <- extract_model_summaries(output)
+
+head(results)
+```
+
+You can do further work on this table if you want. For example, you can
+filter the results to only show outcomes or exposures of interest. For example:
+
+```r
+library(dplyr)
+
+results_cyl <- filter(exposure == "cyl")
+
+results_mpg <- filter(outcome == "mpg")
+```
+
+In "results_cyl", we have filtered for the exposure "cyl"--in this instance,
+we would only see the results that are specifically related to "cyl" exposure.
+
+In "results_mpg", we have filtered for the outcome "mpg"--in this instance,
+we would only the results that are specifically related to the "mpg" outcome.
+
+If you have run lots of models, you might want to adjust the p-values for multiple
+testing to reduce the chance of false positives. You can do that like this:
+
+```r
+extract_model_summaries(results, p_adjust_method = "fdr")
+```
+
+This uses a method called False Discovery Rate (FDR) to adjust the p-values.
+Other options include "bonferroni", "holm", and more.
+
+At any stage, you can also save your models to your computer. This can be a
+good idea as it allows you to come back to the output/results at a later date
+without having to re-run your analysis.
+
+```r
+save_model_output(
+  model_output = output,
+  file_path = "my_model_results")
+```
+
+This will save your model output. By default, it includes everything such as
+the models, the summaries, the formulas and more. The file will be saved using
+the name provided in "file_path" while also automatically adding the current
+date to the file name as a timestamp. This function also prevents you accidentally
+overwriting the file unless you specifically state it to.
+
+If you only want to save the fitted models (for example, to use them later for
+diagnostics), you can do this:
+
+```r
+save_model_output(
+  model_output = output,
+  file_path = "just_models",
+  models_only = TRUE
+)
+```
+
+After saving the file, you'll receive a message on your R console telling you:
+- Where the file was saved.
+- What was included in the saved file.
+- Suggestions on next steps.
+
+To load your saved file later, just use something like this (with the correct
+file name and date):
+
+```r
+load("my_model_results_20250718.RData")
+```
 
 ## Features
 

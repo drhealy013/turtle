@@ -17,7 +17,11 @@
 #'   \item{model}{The original model object.}
 #' }
 #'
+#' @importFrom stats lag setNames
+#'
 #' @keywords internal diagnostics
+
+utils::globalVariables(c("direction", "effect", "lag"))
 
 plot_model_diagnostics <- function(model, model_name, diagnostics) {
   common_theme <- ggplot2::theme(
@@ -109,24 +113,26 @@ plot_model_diagnostics <- function(model, model_name, diagnostics) {
 
 generate_summary_page <- function(n_models, flagged_n, diagnostics, outlier_threshold, pdf_path, readme_url) {
   diagnostic_explanations <- list(
-    heteroscedasticity = "Whether the model’s errors are evenly spread or vary unpredictably.",
-    outliers = "Whether any data points are unusually far from the model’s predictions.",
+    heteroscedasticity = "Whether the model's errors are evenly spread or vary unpredictably.",
+    outliers = "Whether any data points are unusually far from the model's predictions.",
     collinearity = "Whether some predictors are too similar to each other.",
-    normality = "Whether the model’s errors follow a bell-shaped curve.",
-    autocorrelation = "Whether the model’s errors are related across time or sequence.",
+    normality = "Whether the model's errors follow a bell-shaped curve.",
+    autocorrelation = "Whether the model's errors are related across time or sequence.",
     random_effects = "Whether the random effects (in mixed models) are normally distributed."
   )
 
+  bullet_lines <- paste0(
+    sprintf("- %s: %s", names(diagnostic_explanations[diagnostics]), diagnostic_explanations[diagnostics]),
+    collapse = "\n"
+  )
+
   text <- paste0(
-    "✅ Model Diagnostics Completed\n\n",
-    "You’ve successfully run diagnostics on ", n_models, " models using the following checks:\n\n",
-    paste0(
-      sprintf("• %s: %s", names(diagnostic_explanations[diagnostics]), diagnostic_explanations[diagnostics]),
-      collapse = "\n"
-    ),
-    "\n\n📊 Models with >", outlier_threshold, "% outliers: ", flagged_n, "\n",
-    "📂 PDF saved to: ", pdf_path, "\n\n",
-    "🔍 For more details, visit the online guide: ", readme_url
+    "Model Diagnostics Completed\n\n",
+    "You have successfully run diagnostics on ", n_models, " models using the following checks:\n\n",
+    bullet_lines,
+    "\n\nModels with >", outlier_threshold, "% outliers: ", flagged_n, "\n",
+    "PDF saved to: ", pdf_path, "\n\n",
+    "For more details, visit the online guide: ", readme_url
   )
 
   grid::textGrob(text, gp = grid::gpar(fontsize = 12), just = "left", x = 0.05)

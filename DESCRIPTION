@@ -21,18 +21,21 @@ Imports:
     progress,
     cli,
     performance,
-    ggplot2
-Suggests:
+    ggplot2,
+    gridExtra,
+    grid,
+    furrr,
+    future,
     lmerTest (>= 3.1-3),
+    rlang,
+    stringr
+Suggests:
     testthat (>= 3.0.0),
     here,
     mockery,
     callr,
     withr,
-    stringr,
-    gridExtra,
-    grid,
-    furrr
+    see
 RoxygenNote: 7.3.2
 URL: https://github.com/drhealy013/turtle, https://drhealy013.github.io/turtle/
 BugReports: https://github.com/drhealy013/turtle/issues

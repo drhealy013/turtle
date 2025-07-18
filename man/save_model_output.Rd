@@ -3,15 +3,6 @@
 \name{save_model_output}
 \alias{save_model_output}
 \title{Save Model Output to File with Timestamping and Format Handling}
-\usage{
-save_model_output(
-  model_output,
-  file_path,
-  models_only = FALSE,
-  verbose = TRUE,
-  overwrite = FALSE
-)
-}
 \arguments{
 \item{model_output}{A model object or list of model results, ideally from `run_linear_models()`. Must be a list or a model object that can be wrapped in a list.}
 

@@ -4,39 +4,28 @@
 \alias{extract_model_summaries}
 \title{Extract and Combine Tidy Model Summaries}
 \usage{
-extract_model_summaries(
-  model_output,
-  exposure_filter = NULL,
-  p_adjust_method = NULL,
-  verbose = TRUE
-)
+extract_model_summaries(model_output, p_adjust_method = NULL, verbose = TRUE)
 }
 \arguments{
 \item{model_output}{A named list of model results as returned by `run_linear_models()`.}
-
-\item{exposure_filter}{Optional string. If provided, filters the results to include only terms that contain this exposure name (e.g., `"dayrolling"`).}
 
 \item{p_adjust_method}{Optional character string specifying the method for p-value adjustment. Must be one of: `"holm"`, `"hochberg"`, `"hommel"`, `"bonferroni"`, `"BH"`, `"BY"`, `"fdr"`, or `"none"`. If `NULL` (default), no adjustment is applied. Note: `"fdr"` is treated as an alias for `"BH"`.}
 
 \item{verbose}{Logical. If `TRUE` (default), prints a summary of the extraction process.}
 }
 \value{
-A tibble combining all tidy model summaries, with optional filtering and p-value adjustment. Includes a `direction` column indicating the sign of the estimate (`"up"` or `"down"`).
+A tibble combining all tidy model summaries, with optional p-value adjustment. Includes a `direction` column indicating the sign of the estimate (`"up"` or `"down"`).
 }
 \description{
-This function extracts and combines tidy model summaries from the output of `run_linear_models()`. It supports optional filtering by exposure term and p-value adjustment using standard multiple testing correction methods. The output is a single tidy tibble containing results from all models.
+This function extracts and combines tidy model summaries from the output of `run_linear_models()`. It supports optional p-value adjustment using standard multiple testing correction methods. The output is a single tidy tibble containing results from all models.
 }
 \examples{
 \dontrun{
-# Extract all model summaries without adjustment
+# Extract all model summaries
 extract_model_summaries(model_output)
-
-# Filter for exposure terms containing "dayrolling"
-extract_model_summaries(model_output, exposure_filter = "dayrolling")
 
 # Apply Benjamini-Hochberg (FDR) correction
 extract_model_summaries(model_output, p_adjust_method = "BH")
-extract_model_summaries(model_output, p_adjust_method = "fdr")  # Equivalent to "BH"
 
 # Apply Bonferroni correction
 extract_model_summaries(model_output, p_adjust_method = "bonferroni")

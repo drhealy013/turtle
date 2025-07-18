@@ -34,7 +34,7 @@ run_model_diagnostics(
 
 \item{chunk_size}{Integer. Number of models per chunk for parallel processing. Defaults to `100`.}
 
-\item{readme_url}{String. URL to the online guide or README for further explanation. Defaults to `"https://yourproject.org/readme"`.}
+\item{readme_url}{String. URL to the online guide or README for further explanation. Defaults to `"https://github.com/drhealy013/turtle"`.}
 }
 \value{
 An object of class `"model_diagnostics_result"` containing:
@@ -68,9 +68,6 @@ model <- lm(mpg ~ wt + hp, data = mtcars)
 run_model_diagnostics(model, diagnostics = c("normality", "outliers"))
 }
 
-}
-\seealso{
-\code{\link{plot_model_diagnostics}}, \code{\link{generate_summary_page}}, \code{\link{generate_index_page}}
 }
 \keyword{diagnostics}
 \keyword{models}
