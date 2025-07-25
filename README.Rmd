@@ -55,8 +55,6 @@ data analysis:
 For more detail on each of the different sections of your data analysis,
 you can find relevant guides at the end under the “Learn More” section.
 
-## Quick Start
-
 Here’s a basic example of the `run_linear_models()` using the built-in
 `mtcars` dataset:
 
@@ -116,7 +114,7 @@ and p-values, into one tidy table that's easy to read and share.
 ```r
 results <- extract_model_summaries(output)
 
-head(results)
+print(head(results))
 ```
 
 You can do further work on this table if you want. For example, you can
