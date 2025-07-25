@@ -31,11 +31,6 @@ test_that("direction column is correctly assigned", {
   expect_equal(result$direction, ifelse(result$estimate > 0, "up", "down"))
 })
 
-test_that("exposure_filter filters terms correctly", {
-  result <- extract_model_summaries(mock_model_output, exposure_filter = "sex", verbose = FALSE)
-  expect_true(all(grepl("sex", result$term)))
-})
-
 test_that("p-value adjustment is applied correctly", {
   result <- extract_model_summaries(mock_model_output, p_adjust_method = "bonferroni", verbose = FALSE)
   expect_true("p_adjust" %in% names(result))

@@ -92,8 +92,8 @@ output$tidy
 #> 2 cyl            -2.88    -3.53     -2.22     0.322 6.11e-10 NA       32  174.
 ```
 
-You can check the help section of the run_linear_models() (by using
-“?run_linear_models() in R) or the run_linear_models guide under ”Learn
+You can check the help section of the run_linear_models() by using
+“?run_linear_models() in R or the run_linear_models guide under ”Learn
 More” for more examples.
 
 After running your models, you can tidy up the output to make it easier to

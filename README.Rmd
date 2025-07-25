@@ -21,65 +21,169 @@ knitr::opts_chunk$set(
 
 ## Package Overview
 
-`turtle` is an R package that provides simplified, user-friendly functions for common data analysis tasks such as modelling, dimensionality reduction, and visualization. It is designed to support users with minimal programming knowledge by allowing them to specify key inputs (e.g., outcome, exposure, covariates etc.) and automatically handle the underlying code. It is applicable to a wide range of data types, including epidemiological, ecological, and experimental datasets. The core functions include:
+`turtle` is an R package that provides simplified, user-friendly
+functions for common data analysis tasks such as modelling,
+dimensionality reduction, and visualization. It is designed to support
+users with minimal programming knowledge by allowing them to specify key
+inputs (e.g., outcome, exposure, covariates etc.) and automatically
+handle the underlying code. It is applicable to a wide range of data
+types, including epidemiological, ecological, and experimental datasets.
+The core functions include:
 
-- `run_linear_models()`: Fit linear or mixed models (can be run for a single model or many models).
+- `run_linear_models()`: Fit linear or mixed models (can be run for a
+single model or many models).
+- `save_model_output()`: Save models and summaries (e.g., from
+run_linear_models) to your computer.
+- `extract_model_summaries()`: Extract model results from
+`run_linear_models()`.
+- `run_model_diagnostics()`: Run and plot diagnostics for your models.
 
 ## How to get the package
 
 You can install the development version of `turtle` from GitHub with:
 
-```r
+``` r
 # install.packages("pak")
 pak::pak("drhealy013/turtle")
 ```
 
-## Workflow 
+## Workflow
 
-Here is an example of how the different functions can be used in your data analysis:
+Here is an example of how the different functions can be used in your
+data analysis:
 
-For more detail on each of the different sections of your data analysis, you can find relevant guides at the end under the "Learn More" section.
+For more detail on each of the different sections of your data analysis,
+you can find relevant guides at the end under the “Learn More” section.
 
 ## Quick Start
 
-Here’s a basic example of the `run_linear_models()` using the built-in `mtcars` dataset:
+Here’s a basic example of the `run_linear_models()` using the built-in
+`mtcars` dataset:
 
-```{r}
+``` r
 library(turtle)
 
 # Example: Does car weight affect fuel efficiency?
-result <- run_linear_models(
+output <- run_linear_models(
   data = mtcars,
   outcome = "mpg",   # miles per gallon
   exposure = "wt"    # weight of the car
 )
 
 # View the results
-result$tidy
+output$tidy
+#> # A tibble: 2 × 9
+#>   term        estimate conf.low conf.high std.error  p.value error n_obs   BIC
+#>   <chr>          <dbl>    <dbl>     <dbl>     <dbl>    <dbl> <lgl> <int> <dbl>
+#> 1 (Intercept)    37.3     33.5      41.1      1.88  8.24e-19 NA       32  170.
+#> 2 wt             -5.34    -6.49     -4.20     0.559 1.29e-10 NA       32  170.
 ```
 
-The function also takes lists of exposures and/or outcomes and loops through the different combinations. These can be provided directly to the function, or by storing them in a variable.
+The function also takes lists of exposures and/or outcomes and loops
+through the different combinations. These can be provided directly to
+the function, or by storing them in a variable.
 
-```{r}
+``` r
 library(turtle)
 
 outcomes <- c("mpg", "disp")
 exposures <- c("cyl")
 
-result <- run_linear_models(
+output <- run_linear_models(
   data = mtcars,
   outcome = outcomes,
   exposure = exposures
 )
 
-result$tidy
+output$tidy
+#> # A tibble: 2 × 9
+#>   term        estimate conf.low conf.high std.error  p.value error n_obs   BIC
+#>   <chr>          <dbl>    <dbl>     <dbl>     <dbl>    <dbl> <lgl> <int> <dbl>
+#> 1 (Intercept)    37.9     33.6      42.1      2.07  8.37e-18 NA       32  174.
+#> 2 cyl            -2.88    -3.53     -2.22     0.322 6.11e-10 NA       32  174.
 ```
 
-You can check the help section of the run_linear_models() (by using "?run_linear_models() in R) or the run_linear_models guide under "Learn More" for more examples.
+You can check the help section of the run_linear_models() by using
+“?run_linear_models() in R or the run_linear_models guide under ”Learn
+More” for more examples.
 
-## Notes
-Deprecation warning:
-You may see a warning related to formula.character() when running examples. This originates from a dependency package and does not affect the functionality or results of turtle. The issue is expected to be resolved in a future update of the underlying package.
+After running your models, you can tidy up the output to make it easier to
+see all of the results in one place. To do this, you can use the
+`extract_model_summaries()` function. This function pulls together some key
+information from your models, such as estimates (effect size), confidence intervals,
+and p-values, into one tidy table that's easy to read and share.
+
+```r
+results <- extract_model_summaries(output)
+
+head(results)
+```
+
+You can do further work on this table if you want. For example, you can
+filter the results to only show outcomes or exposures of interest. For example:
+
+```r
+library(dplyr)
+
+results_cyl <- filter(exposure == "cyl")
+
+results_mpg <- filter(outcome == "mpg")
+```
+
+In "results_cyl", we have filtered for the exposure "cyl"--in this instance,
+we would only see the results that are specifically related to "cyl" exposure.
+
+In "results_mpg", we have filtered for the outcome "mpg"--in this instance,
+we would only the results that are specifically related to the "mpg" outcome.
+
+If you have run lots of models, you might want to adjust the p-values for multiple
+testing to reduce the chance of false positives. You can do that like this:
+
+```r
+extract_model_summaries(results, p_adjust_method = "fdr")
+```
+
+This uses a method called False Discovery Rate (FDR) to adjust the p-values.
+Other options include "bonferroni", "holm", and more.
+
+At any stage, you can also save your models to your computer. This can be a
+good idea as it allows you to come back to the output/results at a later date
+without having to re-run your analysis.
+
+```r
+save_model_output(
+  model_output = output,
+  file_path = "my_model_results")
+```
+
+This will save your model output. By default, it includes everything such as
+the models, the summaries, the formulas and more. The file will be saved using
+the name provided in "file_path" while also automatically adding the current
+date to the file name as a timestamp. This function also prevents you accidentally
+overwriting the file unless you specifically state it to.
+
+If you only want to save the fitted models (for example, to use them later for
+diagnostics), you can do this:
+
+```r
+save_model_output(
+  model_output = output,
+  file_path = "just_models",
+  models_only = TRUE
+)
+```
+
+After saving the file, you'll receive a message on your R console telling you:
+- Where the file was saved.
+- What was included in the saved file.
+- Suggestions on next steps.
+
+To load your saved file later, just use something like this (with the correct
+file name and date):
+
+```r
+load("my_model_results_20250718.RData")
+```
 
 ## Features
 
@@ -96,11 +200,10 @@ You may see a warning related to formula.character() when running examples. This
   - `formula`: The model formula used
   - `exposure`: The exposure variable used
   - `model_name`: A unique identifier for the model
-- If `return_grid = TRUE`, the full model grid is attached as an attribute
+- If `return_grid = TRUE`, the full model grid is attached as an
+  attribute
 
 ## Learn More
-
-
 
 ## License
 
